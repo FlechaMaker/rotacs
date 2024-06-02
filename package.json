@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix"
+    "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix",
+    "migrate": "node -r dotenv/config -r esbuild-register scripts/migrateToLatest.ts",
+    "migrate:down:all": "node -r dotenv/config -r esbuild-register scripts/migrateDownAll.ts"
   },
   "dependencies": {
     "@lucia-auth/adapter-postgresql": "^3.1.2",
@@ -57,6 +59,10 @@
   },
   "devDependencies": {
     "@types/pg": "^8.11.6",
+    "dotenv": "^16.4.5",
+    "esbuild": "^0.21.4",
+    "esbuild-register": "^3.5.0",
     "prettier": "^3.3.0"
-  }
+  },
+  "packageManager": "pnpm@9.1.4+sha512.9df9cf27c91715646c7d675d1c9c8e41f6fce88246f1318c1aa6a1ed1aeb3c4f032fcdf4ba63cc69c4fe6d634279176b5358727d8f2cc1e65b65f43ce2f8bfb0"
 }

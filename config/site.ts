@@ -55,6 +55,10 @@ export const siteConfig = {
       href: "/help-feedback",
     },
     {
+      label: "Sign Up",
+      href: "/signup",
+    },
+    {
       label: "Logout",
       href: "/logout",
     },
