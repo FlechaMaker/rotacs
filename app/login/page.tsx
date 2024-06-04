@@ -1,99 +1,63 @@
-import { verify } from "@node-rs/argon2";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+"use client";
 
-import { lucia } from "@/lib/auth";
-import { db } from "@/lib/db";
+import React from "react";
+import { Button, Input } from "@nextui-org/react";
+import { Icon } from "@iconify/react";
 
-export default async function Page() {
+import { login } from "@/lib/auth";
+
+export default function Login() {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const [isLoggingIn, setIsLoggingIn] = React.useState(false);
+
+  const toggleVisibility = () => setIsVisible(!isVisible);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    setIsLoggingIn(true);
+  };
+
   return (
-    <>
-      <h1>Sign in</h1>
-      <form action={login}>
-        <label htmlFor="username">Username</label>
-        <input id="username" name="username" />
-        <br />
-        <label htmlFor="password">Password</label>
-        <input id="password" name="password" type="password" />
-        <br />
-        <button>Continue</button>
-      </form>
-    </>
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="flex w-full max-w-sm flex-col gap-4 rounded-large bg-content1 px-8 pb-10 pt-6 shadow-small">
+        <p className="pb-2 text-xl font-medium">ログイン</p>
+        <form
+          action={login}
+          className="flex flex-col gap-3"
+          onSubmit={handleSubmit}
+        >
+          <Input
+            label="ユーザー名"
+            name="username"
+            placeholder="ユーザー名を入力"
+            variant="bordered"
+          />
+          <Input
+            endContent={
+              <button type="button" onClick={toggleVisibility}>
+                {isVisible ? (
+                  <Icon
+                    className="pointer-events-none text-2xl text-default-400"
+                    icon="solar:eye-closed-linear"
+                  />
+                ) : (
+                  <Icon
+                    className="pointer-events-none text-2xl text-default-400"
+                    icon="solar:eye-bold"
+                  />
+                )}
+              </button>
+            }
+            label="パスワード"
+            name="password"
+            placeholder="パスワードを入力"
+            type={isVisible ? "text" : "password"}
+            variant="bordered"
+          />
+          <Button color="primary" isLoading={isLoggingIn} type="submit">
+            ログイン
+          </Button>
+        </form>
+      </div>
+    </div>
   );
-}
-
-async function login(formData: FormData): Promise<ActionResult> {
-  "use server";
-  const username = formData.get("username");
-
-  if (
-    typeof username !== "string" ||
-    username.length < 3 ||
-    username.length > 31 ||
-    !/^[a-z0-9_-]+$/.test(username)
-  ) {
-    return {
-      error: "Invalid username",
-    };
-  }
-  const password = formData.get("password");
-
-  if (
-    typeof password !== "string" ||
-    password.length < 6 ||
-    password.length > 255
-  ) {
-    return {
-      error: "Invalid password",
-    };
-  }
-
-  const existingUser = await db
-    .selectFrom("user")
-    .selectAll()
-    .where("username", "=", username.toLowerCase())
-    .executeTakeFirst();
-
-  if (!existingUser) {
-    // NOTE:
-    // Returning immediately allows malicious actors to figure out valid usernames from response times,
-    // allowing them to only focus on guessing passwords in brute-force attacks.
-    // As a preventive measure, you may want to hash passwords even for invalid usernames.
-    // However, valid usernames can be already be revealed with the signup page among other methods.
-    // It will also be much more resource intensive.
-    // Since protecting against this is non-trivial,
-    // it is crucial your implementation is protected against brute-force attacks with login throttling etc.
-    // If usernames are public, you may outright tell the user that the username is invalid.
-    return {
-      error: "Incorrect username or password",
-    };
-  }
-
-  const validPassword = await verify(existingUser.password_hash, password, {
-    memoryCost: 19456,
-    timeCost: 2,
-    outputLen: 32,
-    parallelism: 1,
-  });
-
-  if (!validPassword) {
-    return {
-      error: "Incorrect username or password",
-    };
-  }
-
-  const session = await lucia.createSession(existingUser.id, {});
-  const sessionCookie = lucia.createSessionCookie(session.id);
-
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes,
-  );
-
-  return redirect("/");
-}
-
-interface ActionResult {
-  error: string;
 }

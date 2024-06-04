@@ -1,3 +1,5 @@
+import "server-only";
+
 import { Pool } from "pg";
 import { createKysely } from "@vercel/postgres-kysely";
 import { Insertable, PostgresDialect, Selectable, Updateable } from "kysely";

@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { generateIdFromEntropySize } from "lucia";
 
-import { lucia } from "@/lib/auth";
+import { lucia } from "@/lib/lucia";
 import { db } from "@/lib/db";
 
 export default async function Page() {

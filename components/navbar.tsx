@@ -1,141 +1,167 @@
+"use server";
+
 import {
-  Navbar as NextUINavbar,
-  NavbarContent,
-  NavbarMenu,
-  NavbarMenuToggle,
+  Navbar as NextUiNavbar,
   NavbarBrand,
+  NavbarContent,
   NavbarItem,
-  NavbarMenuItem,
-} from "@nextui-org/navbar";
-import { Button } from "@nextui-org/button";
-import { Kbd } from "@nextui-org/kbd";
-import { Link } from "@nextui-org/link";
-import { Input } from "@nextui-org/input";
-import { link as linkStyles } from "@nextui-org/theme";
-import NextLink from "next/link";
-import clsx from "clsx";
+  NavbarMenuToggle,
+  Link,
+  Button,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  AvatarGroup,
+  Avatar,
+  Tooltip,
+  ScrollShadow,
+  Divider,
+  Badge,
+  Spacer,
+} from "@nextui-org/react";
+import { Icon } from "@iconify/react";
 
-import { siteConfig } from "@/config/site";
+import NavigationTabs from "@/components/navigation-tabs";
+import NavbarMenu from "@/components/navbar-menu";
+import UserMenu from "@/components/usermenu";
+import Breadcrumbs from "@/components/breadcrumb";
+import NotificationsCard from "@/components/notifications-card";
 import { ThemeSwitch } from "@/components/theme-switch";
-import {
-  TwitterIcon,
-  GithubIcon,
-  DiscordIcon,
-  HeartFilledIcon,
-  SearchIcon,
-  Logo,
-} from "@/components/icons";
+import { validateRequest } from "@/lib/auth";
 
-export const Navbar = () => {
-  const searchInput = (
-    <Input
-      aria-label="Search"
-      classNames={{
-        inputWrapper: "bg-default-100",
-        input: "text-sm",
-      }}
-      endContent={
-        <Kbd className="hidden lg:inline-block" keys={["command"]}>
-          K
-        </Kbd>
-      }
-      labelPlacement="outside"
-      placeholder="Search..."
-      startContent={
-        <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-      }
-      type="search"
-    />
-  );
+export async function Navbar() {
+  const user = await validateRequest();
 
   return (
-    <NextUINavbar maxWidth="xl" position="sticky">
-      <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <NextLink className="flex justify-start items-center gap-1" href="/">
-            <Logo />
-            <p className="font-bold text-inherit">ACME</p>
-          </NextLink>
-        </NavbarBrand>
-        <ul className="hidden lg:flex gap-4 justify-start ml-2">
-          {siteConfig.navItems.map((item) => (
-            <NavbarItem key={item.href}>
-              <NextLink
-                className={clsx(
-                  linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium",
-                )}
-                color="foreground"
-                href={item.href}
-              >
-                {item.label}
-              </NextLink>
-            </NavbarItem>
-          ))}
-        </ul>
-      </NavbarContent>
-
-      <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full"
-        justify="end"
+    <div className="w-full">
+      <NextUiNavbar
+        classNames={{
+          base: "pt-2 lg:pt-4 lg:bg-transparent lg:backdrop-filter-none",
+          wrapper: "px-4 sm:px-6",
+          item: "data-[active=true]:text-primary",
+        }}
+        height="60px"
+        maxWidth="full"
       >
-        <NavbarItem className="hidden sm:flex gap-2">
-          <Link isExternal aria-label="Twitter" href={siteConfig.links.twitter}>
-            <TwitterIcon className="text-default-500" />
+        <NavbarBrand>
+          <NavbarMenuToggle className="mr-6 h-6" />
+          <Link className="text-inherit" href="/">
+            <p className="font-bold text-inherit">ROTACS</p>
           </Link>
-          <Link isExternal aria-label="Discord" href={siteConfig.links.discord}>
-            <DiscordIcon className="text-default-500" />
-          </Link>
-          <Link isExternal aria-label="Github" href={siteConfig.links.github}>
-            <GithubIcon className="text-default-500" />
-          </Link>
-          <ThemeSwitch />
-        </NavbarItem>
-        <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
-        <NavbarItem className="hidden md:flex">
-          <Button
-            isExternal
-            as={Link}
-            className="text-sm font-normal text-default-600 bg-default-100"
-            href={siteConfig.links.sponsor}
-            startContent={<HeartFilledIcon className="text-danger" />}
-            variant="flat"
-          >
-            Sponsor
-          </Button>
-        </NavbarItem>
-      </NavbarContent>
+        </NavbarBrand>
 
-      <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <Link isExternal aria-label="Github" href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link>
-        <ThemeSwitch />
-        <NavbarMenuToggle />
-      </NavbarContent>
+        {/* Right Menu */}
+        <NavbarContent
+          className="ml-auto h-12 max-w-fit items-center gap-0"
+          justify="end"
+        >
+          <NavbarItem className="hidden sm:flex">
+            <Breadcrumbs />
+          </NavbarItem>
+          <Spacer x={6} />
+          {/* Search */}
+          {/* <NavbarItem className="mr-2 hidden sm:flex">
+            <Input
+              aria-label="Search"
+              classNames={{
+                inputWrapper: "bg-content2 dark:bg-content1",
+              }}
+              labelPlacement="outside"
+              placeholder="Search..."
+              radius="full"
+              startContent={
+                <Icon
+                  className="text-default-500"
+                  icon="solar:magnifer-linear"
+                  width={20}
+                />
+              }
+            />
+          </NavbarItem> */}
+          <NavbarItem className="hidden sm:flex">
+            <ThemeSwitch className="text-default-500" size={24} />
+          </NavbarItem>
+          {/* Settings */}
+          <NavbarItem className="hidden sm:flex">
+            <Button isIconOnly radius="full" variant="light">
+              <Icon
+                className="text-default-500"
+                icon="solar:settings-linear"
+                width={24}
+              />
+            </Button>
+          </NavbarItem>
+          {/* Notifications */}
+          <NavbarItem className="flex">
+            <Popover offset={12} placement="bottom-end">
+              <PopoverTrigger>
+                <Button
+                  disableRipple
+                  isIconOnly
+                  className="overflow-visible"
+                  radius="full"
+                  variant="light"
+                >
+                  <Badge
+                    color="danger"
+                    content="5"
+                    showOutline={false}
+                    size="md"
+                  >
+                    <Icon
+                      className="text-default-500"
+                      icon="solar:bell-linear"
+                      width={22}
+                    />
+                  </Badge>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="max-w-[90vw] p-0 sm:max-w-[380px]">
+                <NotificationsCard className="w-full shadow-none" />
+              </PopoverContent>
+            </Popover>
+          </NavbarItem>
+          {/* User Menu */}
+          <NavbarItem className="px-2">
+            <UserMenu />
+          </NavbarItem>
+        </NavbarContent>
 
-      <NavbarMenu>
-        {searchInput}
-        <div className="mx-4 mt-2 flex flex-col gap-2">
-          {siteConfig.navMenuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
-              <Link
-                color={
-                  index === 2
-                    ? "primary"
-                    : index === siteConfig.navMenuItems.length - 1
-                      ? "danger"
-                      : "foreground"
-                }
-                href={item.href}
-                size="lg"
-              >
-                {item.label}
-              </Link>
-            </NavbarMenuItem>
-          ))}
-        </div>
-      </NavbarMenu>
-    </NextUINavbar>
+        {/* Menu */}
+        <NavbarMenu userJson={JSON.stringify(user)} />
+      </NextUiNavbar>
+      <main className="flex w-full justify-center lg:mt-6">
+        <ScrollShadow
+          hideScrollBar
+          className="flex w-full justify-between gap-8 border-b border-divider px-4 sm:px-8"
+          orientation="horizontal"
+        >
+          <NavigationTabs />
+          <div className="flex items-center gap-4">
+            <AvatarGroup max={3} size="sm" total={10}>
+              <Tooltip content="John" placement="bottom">
+                <Avatar src="https://i.pravatar.cc/150?u=a042581f4e29026024d" />
+              </Tooltip>
+              <Tooltip content="Mark" placement="bottom">
+                <Avatar src="https://i.pravatar.cc/150?u=a04258a2462d826712d" />
+              </Tooltip>
+              <Tooltip content="Jane" placement="bottom">
+                <Avatar src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
+              </Tooltip>
+            </AvatarGroup>
+            <Divider className="h-6" orientation="vertical" />
+            <Tooltip content="New deployment" placement="bottom">
+              <Button isIconOnly radius="full" size="sm" variant="faded">
+                <Icon
+                  className="text-default-500"
+                  icon="lucide:plus"
+                  width={16}
+                />
+              </Button>
+            </Tooltip>
+          </div>
+        </ScrollShadow>
+      </main>
+    </div>
   );
-};
+}
