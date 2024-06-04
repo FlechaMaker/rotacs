@@ -162,7 +162,7 @@ export async function sendLineNotifyMessage(
     .where("user_id", "=", user.id)
     .execute();
 
-  tokenEntries.forEach(async (entry) => {
+  const requestPromises = tokenEntries.map(async (entry) => {
     const token = entry.token;
 
     if (!token) {
@@ -185,4 +185,6 @@ export async function sendLineNotifyMessage(
       }
     });
   });
+
+  await Promise.all(requestPromises);
 }
