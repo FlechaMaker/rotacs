@@ -10,6 +10,7 @@ const adapter = new NodePostgresAdapter(pool, {
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
+    name: process.env.LUCIA_SESSION_COOKIE_NAME,
     expires: false,
     attributes: {
       secure: process.env.NODE_ENV === "production",
@@ -18,6 +19,8 @@ export const lucia = new Lucia(adapter, {
   getUserAttributes: (attributes) => {
     return {
       username: attributes.username,
+      display_name: attributes.display_name,
+      role: attributes.role,
     };
   },
 });

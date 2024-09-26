@@ -1,4 +1,4 @@
-# ROTACS (RObocon Testrun and Check Scheduler; ロタックス)
+# RoTACS (Robocon Testrun and Check Scheduler; ロタックス)
 
 ロボコンのテストラン予約などを管理するためのWebアプリケーションです。
 

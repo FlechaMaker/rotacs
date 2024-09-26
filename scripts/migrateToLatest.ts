@@ -10,6 +10,7 @@ import { db } from "@/lib/db";
 const console = new Console(stdout);
 
 async function migrateToLatest() {
+  console.log("Migrating database to latest version");
   const migrator = new Migrator({
     db,
     provider: new FileMigrationProvider({

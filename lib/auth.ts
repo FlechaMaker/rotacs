@@ -1,20 +1,18 @@
 "use server";
 
-import "server-only";
+import "server-cli-only";
 
-import type { Session, User } from "lucia";
-
+import { generateIdFromEntropySize, type Session, type User } from "lucia";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import { verify } from "@node-rs/argon2";
+import { hash, verify } from "@node-rs/argon2";
 
 import { db } from "@/lib/db";
 import { lucia } from "@/lib/lucia";
-
-interface ActionResult {
-  error: string;
-}
+import { ActionResult } from "@/types/actions";
+import { UserTable } from "@/types/auth";
+import { DatabaseUserAttributes, UserRole } from "@/types/auth";
 
 declare module "lucia" {
   interface Register {
@@ -23,11 +21,110 @@ declare module "lucia" {
   }
 }
 
-interface DatabaseUserAttributes {
-  username: string;
+export async function createUserInfo(
+  username: string,
+  password: string,
+  display_name: string,
+  role: "admin" | "user",
+): Promise<UserTable | ActionResult> {
+  // username must be between 4 ~ 31 characters, and only consists of lowercase letters, 0-9, -, and _
+  // keep in mind some database (e.g. mysql) are case insensitive
+  if (
+    typeof username !== "string" ||
+    username.length < 3 ||
+    username.length > 31 ||
+    !/^[a-z0-9_-]+$/.test(username)
+  ) {
+    return {
+      errors: "Invalid username",
+    };
+  }
+
+  if (
+    typeof password !== "string" ||
+    password.length < 6 ||
+    password.length > 255
+  ) {
+    return {
+      errors: "Invalid password",
+    };
+  }
+
+  const passwordHash = await hash(password, {
+    // recommended minimum parameters
+    memoryCost: 19456,
+    timeCost: 2,
+    outputLen: 32,
+    parallelism: 1,
+  });
+  const userId = generateIdFromEntropySize(10); // 16 characters long
+
+  return {
+    id: userId,
+    username: username,
+    password_hash: passwordHash,
+    display_name: display_name,
+    role: role,
+  };
 }
 
-export async function login(formData: FormData): Promise<ActionResult> {
+export async function signup(formData: FormData): Promise<ActionResult> {
+  let _userEntry: UserTable | ActionResult;
+
+  try {
+    const username = formData.get("username")?.toString()!;
+    const password = formData.get("password")?.toString()!;
+    const display_name = formData.get("display_name")?.toString() ?? "";
+    const role = (formData.get("role")?.toString() as UserRole) ?? "user";
+
+    _userEntry = await createUserInfo(username, password, display_name, role);
+  } catch (error) {
+    return {
+      errors: `Create user failed. Invalid form data. (${error})`,
+    };
+  }
+
+  if ("errors" in _userEntry) {
+    return _userEntry as ActionResult;
+  }
+
+  const userEntry = _userEntry as UserTable;
+
+  // TODO: check if username is already used
+  const validUserId = await db
+    .insertInto("user")
+    .values(userEntry)
+    .returning("id")
+    .executeTakeFirstOrThrow()
+    .then((value) => value.id);
+
+  if (!validUserId) {
+    return {
+      errors: "Create user failed. No user id returned.",
+    };
+  }
+
+  const session = await lucia.createSession(validUserId, {});
+  const sessionCookie = lucia.createSessionCookie(session.id);
+
+  cookies().set(
+    sessionCookie.name,
+    sessionCookie.value,
+    sessionCookie.attributes,
+  );
+  cookies().set(
+    process.env.SESSION_COOKIE_ROLE_NAME!,
+    userEntry.role,
+    sessionCookie.attributes,
+  );
+
+  return redirect("/");
+}
+
+export async function login(
+  state: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
   const username = formData.get("username");
 
   if (
@@ -37,7 +134,7 @@ export async function login(formData: FormData): Promise<ActionResult> {
     !/^[a-z0-9_-]+$/.test(username)
   ) {
     return {
-      error: "Invalid username",
+      errors: "ユーザー名の形式が不正です．",
     };
   }
   const password = formData.get("password");
@@ -48,7 +145,7 @@ export async function login(formData: FormData): Promise<ActionResult> {
     password.length > 255
   ) {
     return {
-      error: "Invalid password",
+      errors: "パスワードの形式が不正です．",
     };
   }
 
@@ -69,7 +166,7 @@ export async function login(formData: FormData): Promise<ActionResult> {
     // it is crucial your implementation is protected against brute-force attacks with login throttling etc.
     // If usernames are public, you may outright tell the user that the username is invalid.
     return {
-      error: "Incorrect username or password",
+      errors: "入力されたユーザー名が存在しません．",
     };
   }
 
@@ -82,7 +179,7 @@ export async function login(formData: FormData): Promise<ActionResult> {
 
   if (!validPassword) {
     return {
-      error: "Incorrect username or password",
+      errors: "ユーザー名またはパスワードが間違っています．",
     };
   }
 
@@ -94,6 +191,11 @@ export async function login(formData: FormData): Promise<ActionResult> {
     sessionCookie.value,
     sessionCookie.attributes,
   );
+  cookies().set(
+    process.env.SESSION_COOKIE_ROLE_NAME!,
+    existingUser.role,
+    sessionCookie.attributes,
+  );
 
   return redirect("/");
 }
@@ -103,7 +205,7 @@ export async function logout(): Promise<ActionResult> {
 
   if (!session) {
     return {
-      error: "Unauthorized",
+      errors: "Unauthorized",
     };
   }
 
@@ -114,6 +216,11 @@ export async function logout(): Promise<ActionResult> {
   cookies().set(
     sessionCookie.name,
     sessionCookie.value,
+    sessionCookie.attributes,
+  );
+  cookies().set(
+    process.env.SESSION_COOKIE_ROLE_NAME!,
+    "",
     sessionCookie.attributes,
   );
 
@@ -145,6 +252,11 @@ export const validateRequest = cache(
           sessionCookie.value,
           sessionCookie.attributes,
         );
+        cookies().set(
+          process.env.SESSION_COOKIE_ROLE_NAME!,
+          result.user.role,
+          sessionCookie.attributes,
+        );
       }
       if (!result.session) {
         const sessionCookie = lucia.createBlankSessionCookie();
@@ -152,6 +264,11 @@ export const validateRequest = cache(
         cookies().set(
           sessionCookie.name,
           sessionCookie.value,
+          sessionCookie.attributes,
+        );
+        cookies().set(
+          process.env.SESSION_COOKIE_ROLE_NAME!,
+          "",
           sessionCookie.attributes,
         );
       }

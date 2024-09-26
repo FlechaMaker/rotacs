@@ -1,4 +1,4 @@
-import "server-only";
+import "server-cli-only";
 
 import { hash } from "@node-rs/argon2";
 import { Session, User } from "lucia";

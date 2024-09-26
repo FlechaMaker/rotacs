@@ -1,6 +1,10 @@
 export type SiteConfig = typeof siteConfig;
 
-export const pages = {
+type Route = Record<string, any>;
+
+export const routes: Route = {
+  label: "Home",
+  href: "/",
   home: {
     label: "Home",
     href: "/",
@@ -12,6 +16,14 @@ export const pages = {
   settings: {
     label: "設定",
     href: "/settings",
+    notification: {
+      label: "通知",
+      href: "/settings/notification",
+    },
+    users: {
+      label: "ユーザー",
+      href: "/settings/users",
+    },
   },
   login: {
     label: "ログイン",
@@ -24,12 +36,19 @@ export const pages = {
 };
 
 export const siteConfig = {
-  name: "Next.js + NextUI",
-  description: "Make beautiful websites regardless of your design experience.",
-  tabItems: [pages.home, pages.about],
-  navMenuItemsSignedOut: [pages.home, pages.login],
-  navMenuItemsSignedIn: [pages.home, pages.about, pages.logout],
-  userMenuItems: [pages.settings, pages.logout],
+  name: "RoTACS",
+  description: "Robocon Testrun And Check Scheduler",
+  tabItems: [routes.home, routes.about],
+  navMenuItemsSignedOut: [routes.home, routes.login],
+  navMenuItemsSignedIn: [
+    routes.home,
+    routes.about,
+    routes.settings,
+    routes.logout,
+  ],
+  userMenuItems: [routes.settings, routes.logout],
+  settingTabItems: [routes.settings.notification],
+  adminSettingTabItems: [routes.settings.notification, routes.settings.users],
   links: {
     github: "https://github.com/nextui-org/nextui",
     twitter: "https://twitter.com/getnextui",

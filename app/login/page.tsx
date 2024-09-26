@@ -1,27 +1,38 @@
 "use client";
 
 import React from "react";
+import { useFormState } from "react-dom";
 import { Button, Input } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 
 import { login } from "@/lib/auth";
+import { ActionResult } from "@/types/actions";
+
+const loginInitialState: ActionResult = {
+  errors: "",
+};
 
 export default function Login() {
   const [isVisible, setIsVisible] = React.useState(false);
   const [isLoggingIn, setIsLoggingIn] = React.useState(false);
+  const [loginState, loginFormAction] = useFormState(login, loginInitialState);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async () => {
     setIsLoggingIn(true);
   };
+
+  React.useEffect(() => {
+    setIsLoggingIn(false);
+  }, [loginState]);
 
   return (
     <div className="flex h-full w-full items-center justify-center">
       <div className="flex w-full max-w-sm flex-col gap-4 rounded-large bg-content1 px-8 pb-10 pt-6 shadow-small">
         <p className="pb-2 text-xl font-medium">ログイン</p>
         <form
-          action={login}
+          action={loginFormAction}
           className="flex flex-col gap-3"
           onSubmit={handleSubmit}
         >
@@ -53,6 +64,7 @@ export default function Login() {
             type={isVisible ? "text" : "password"}
             variant="bordered"
           />
+          <p className=" text-red-500 text-sm h-6">{loginState.errors}</p>
           <Button color="primary" isLoading={isLoggingIn} type="submit">
             ログイン
           </Button>

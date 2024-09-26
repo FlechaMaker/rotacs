@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix",
-    "migrate": "node -r dotenv/config -r esbuild-register scripts/migrateToLatest.ts",
-    "migrate:down:all": "node -r dotenv/config -r esbuild-register scripts/migrateDownAll.ts"
+    "migrate": "RUNNING_IN_CLI=true node -r dotenv/config -r esbuild-register scripts/migrateToLatest.ts",
+    "migrate:down:all": "RUNNING_IN_CLI=true node -r dotenv/config -r esbuild-register scripts/migrateDownAll.ts"
   },
   "dependencies": {
     "@iconify/react": "^5.0.1",
@@ -17,16 +17,19 @@
     "@node-rs/argon2": "^1.8.3",
     "@react-aria/ssr": "^3.9.2",
     "@react-aria/visually-hidden": "^3.8.10",
+    "@react-stately/data": "^3.11.4",
     "@types/node": "20.5.7",
     "@types/react": "18.3.2",
     "@types/react-dom": "18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.10.0",
     "@typescript-eslint/parser": "^7.10.0",
+    "@vercel/kv": "^2.0.0",
     "@vercel/postgres-kysely": "^0.8.0",
     "autoprefixer": "10.4.19",
     "axios": "^1.7.2",
     "client-only": "^0.0.1",
     "clsx": "^2.1.1",
+    "csv": "^6.3.9",
     "eslint": "^8.56.0",
     "eslint-config-next": "14.2.1",
     "eslint-config-prettier": "^8.2.0",
@@ -47,7 +50,7 @@
     "postcss": "8.4.38",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "server-only": "^0.0.1",
+    "server-cli-only": "^0.3.2",
     "tailwind-merge": "^2.3.0",
     "tailwind-variants": "^0.1.20",
     "tailwindcss": "3.4.3",
@@ -59,7 +62,9 @@
     "dotenv": "^16.4.5",
     "esbuild": "^0.21.4",
     "esbuild-register": "^3.5.0",
-    "prettier": "^3.3.0"
+    "eslint-plugin-tailwindcss": "^3.17.0",
+    "prettier": "^3.3.0",
+    "prettier-plugin-tailwindcss": "^0.6.1"
   },
-  "packageManager": "pnpm@9.1.4+sha512.9df9cf27c91715646c7d675d1c9c8e41f6fce88246f1318c1aa6a1ed1aeb3c4f032fcdf4ba63cc69c4fe6d634279176b5358727d8f2cc1e65b65f43ce2f8bfb0"
+  "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b"
 }

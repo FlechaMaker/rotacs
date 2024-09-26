@@ -21,12 +21,12 @@ import {
 } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 
-import NavigationTabs from "@/components/navigation-tabs";
-import NavbarMenu from "@/components/navbar-menu";
-import UserMenu from "@/components/usermenu";
-import Breadcrumbs from "@/components/breadcrumb";
-import NotificationsCard from "@/components/notifications-card";
-import { ThemeSwitch } from "@/components/theme-switch";
+import NavigationTabs from "@/components/navbar/navigation-tabs";
+import NavbarMenu from "@/components/navbar/navbar-menu";
+import UserMenu from "@/components/navbar/usermenu";
+import Breadcrumbs from "@/components/navbar/breadcrumbs";
+import NotificationsCard from "@/components/navbar/notifications-card";
+import { ThemeSwitch } from "@/components/navbar/theme-switch";
 import { validateRequest } from "@/lib/auth";
 
 export async function Navbar() {
@@ -46,7 +46,7 @@ export async function Navbar() {
         <NavbarBrand>
           <NavbarMenuToggle className="mr-6 h-6" />
           <Link className="text-inherit" href="/">
-            <p className="font-bold text-inherit">ROTACS</p>
+            <p className="font-bold text-inherit">RoTACS</p>
           </Link>
         </NavbarBrand>
 
