@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { usePathname } from "next/navigation";
 import {
   NavbarMenu as NextUiNavbarMenu,
@@ -10,9 +11,13 @@ import { User } from "lucia";
 
 import { siteConfig } from "@/config/site";
 
-export default function NavbarMenu(props: { userJson?: string }) {
+export default function NavbarMenu(props: {
+  userJson?: string;
+  setIsMenuOpen: () => void;
+}) {
   const pathname = usePathname();
   const user = props.userJson ? (JSON.parse(props.userJson) as User) : null;
+
   const navMenuItems = user
     ? siteConfig.navMenuItemsSignedIn
     : siteConfig.navMenuItemsSignedOut;
@@ -25,6 +30,7 @@ export default function NavbarMenu(props: { userJson?: string }) {
             className="w-full"
             color={item.href === pathname ? "primary" : "foreground"}
             href={item.href}
+            onPress={() => props.setIsMenuOpen()}
           >
             {item.label}
           </Link>

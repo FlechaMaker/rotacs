@@ -1,6 +1,6 @@
 "use client"; // Workaround for a Next.js bug: https://github.com/nextui-org/nextui/issues/1342
 
-import { Tabs, Tab, Link } from "@nextui-org/react";
+import { Tabs, Tab } from "@nextui-org/react";
 import { usePathname } from "next/navigation";
 
 import { siteConfig } from "@/config/site";
@@ -13,6 +13,7 @@ export default function NavigationTabs() {
   return (
     <Tabs
       aria-label="Navigation Tabs"
+      className="h-12"
       classNames={{
         tabList: "w-full relative rounded-none p-0 gap-4 lg:gap-6",
         tab: "max-w-fit px-0 h-12",
@@ -24,16 +25,7 @@ export default function NavigationTabs() {
       selectedKey={pathname}
       variant="underlined"
     >
-      {(item) => (
-        <Tab
-          key={item.href}
-          title={
-            <Link className="text-inherit" href={item.href}>
-              {item.label}
-            </Link>
-          }
-        />
-      )}
+      {(item) => <Tab key={item.href} href={item.href} title={item.label} />}
     </Tabs>
   );
 }

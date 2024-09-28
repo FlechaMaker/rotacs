@@ -1,5 +1,8 @@
-"use server";
+"use client";
 
+import "client-only";
+
+import React from "react";
 import {
   Navbar as NextUiNavbar,
   NavbarBrand,
@@ -7,46 +10,44 @@ import {
   NavbarItem,
   NavbarMenuToggle,
   Link,
-  Button,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  AvatarGroup,
-  Avatar,
-  Tooltip,
   ScrollShadow,
-  Divider,
-  Badge,
   Spacer,
 } from "@nextui-org/react";
+import { button as buttonStyles } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
+import { User } from "lucia";
 
+import { siteConfig } from "@/config/site";
 import NavigationTabs from "@/components/navbar/navigation-tabs";
 import NavbarMenu from "@/components/navbar/navbar-menu";
 import UserMenu from "@/components/navbar/usermenu";
 import Breadcrumbs from "@/components/navbar/breadcrumbs";
-import NotificationsCard from "@/components/navbar/notifications-card";
 import { ThemeSwitch } from "@/components/navbar/theme-switch";
-import { validateRequest } from "@/lib/auth";
 
-export async function Navbar() {
-  const user = await validateRequest();
+export function Navbar(props: { userJson: string }) {
+  const user = props.userJson ? (JSON.parse(props.userJson) as User) : null;
+  const [isMenuOpen, setIsMenuOpen] = React.useReducer(
+    (current) => !current,
+    false,
+  );
 
   return (
-    <div className="w-full">
+    <>
       <NextUiNavbar
         classNames={{
-          base: "pt-2 lg:pt-4 lg:bg-transparent lg:backdrop-filter-none",
+          base: "pt-2 lg:pt-4 bg-background lg:backdrop-filter-none",
           wrapper: "px-4 sm:px-6",
           item: "data-[active=true]:text-primary",
         }}
         height="60px"
+        isMenuOpen={isMenuOpen}
         maxWidth="full"
+        onMenuOpenChange={setIsMenuOpen}
       >
         <NavbarBrand>
           <NavbarMenuToggle className="mr-6 h-6" />
           <Link className="text-inherit" href="/">
-            <p className="font-bold text-inherit">RoTACS</p>
+            <p className="font-bold text-inherit">{siteConfig.name}</p>
           </Link>
         </NavbarBrand>
 
@@ -83,16 +84,23 @@ export async function Navbar() {
           </NavbarItem>
           {/* Settings */}
           <NavbarItem className="hidden sm:flex">
-            <Button isIconOnly radius="full" variant="light">
+            <Link
+              className={buttonStyles({
+                isIconOnly: true,
+                radius: "full",
+                variant: "light",
+              })}
+              href="/settings"
+            >
               <Icon
                 className="text-default-500"
                 icon="solar:settings-linear"
                 width={24}
               />
-            </Button>
+            </Link>
           </NavbarItem>
           {/* Notifications */}
-          <NavbarItem className="flex">
+          {/* <NavbarItem className="flex">
             <Popover offset={12} placement="bottom-end">
               <PopoverTrigger>
                 <Button
@@ -120,48 +128,26 @@ export async function Navbar() {
                 <NotificationsCard className="w-full shadow-none" />
               </PopoverContent>
             </Popover>
-          </NavbarItem>
+          </NavbarItem> */}
           {/* User Menu */}
           <NavbarItem className="px-2">
-            <UserMenu />
+            <UserMenu userJson={JSON.stringify(user)} />
           </NavbarItem>
         </NavbarContent>
 
         {/* Menu */}
-        <NavbarMenu userJson={JSON.stringify(user)} />
+        <NavbarMenu
+          setIsMenuOpen={setIsMenuOpen}
+          userJson={JSON.stringify(user)}
+        />
       </NextUiNavbar>
-      <main className="flex w-full justify-center lg:mt-6">
-        <ScrollShadow
-          hideScrollBar
-          className="flex w-full justify-between gap-8 border-b border-divider px-4 sm:px-8"
-          orientation="horizontal"
-        >
-          <NavigationTabs />
-          <div className="flex items-center gap-4">
-            <AvatarGroup max={3} size="sm" total={10}>
-              <Tooltip content="John" placement="bottom">
-                <Avatar src="https://i.pravatar.cc/150?u=a042581f4e29026024d" />
-              </Tooltip>
-              <Tooltip content="Mark" placement="bottom">
-                <Avatar src="https://i.pravatar.cc/150?u=a04258a2462d826712d" />
-              </Tooltip>
-              <Tooltip content="Jane" placement="bottom">
-                <Avatar src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
-              </Tooltip>
-            </AvatarGroup>
-            <Divider className="h-6" orientation="vertical" />
-            <Tooltip content="New deployment" placement="bottom">
-              <Button isIconOnly radius="full" size="sm" variant="faded">
-                <Icon
-                  className="text-default-500"
-                  icon="lucide:plus"
-                  width={16}
-                />
-              </Button>
-            </Tooltip>
-          </div>
-        </ScrollShadow>
-      </main>
-    </div>
+      <ScrollShadow
+        hideScrollBar
+        className="flex w-full justify-between gap-8 border-b border-divider px-4 sm:px-8"
+        orientation="horizontal"
+      >
+        <NavigationTabs />
+      </ScrollShadow>
+    </>
   );
 }

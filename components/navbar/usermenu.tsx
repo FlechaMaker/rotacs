@@ -1,21 +1,15 @@
-"use server";
+"use client";
 
-import {
-  Dropdown,
-  DropdownTrigger,
-  Avatar,
-  Badge,
-  button,
-  Link,
-} from "@nextui-org/react";
+import "client-only";
+
+import { Dropdown, DropdownTrigger, Avatar, Link } from "@nextui-org/react";
 import { button as buttonStyle } from "@nextui-org/theme";
+import { User } from "lucia";
 
 import UserMenuDropdownMenu from "./usermenu-dropdownmenu";
 
-import { validateRequest } from "@/lib/auth";
-
-export default async function UserMenu() {
-  const { user } = await validateRequest();
+export default function UserMenu(props: { userJson: string }) {
+  const user = props.userJson ? (JSON.parse(props.userJson) as User) : null;
 
   if (!user) {
     return (

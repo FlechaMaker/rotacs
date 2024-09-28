@@ -23,55 +23,65 @@ export default function Breadcrumbs() {
 
           const pathUrl = pathDirs.join("/");
 
-          let currentDirLabel;
+          let currentDirLabel = "";
 
-          if (pathDirs.length === 1) {
-            currentDirLabel = routes[pathDirs[0]]?.label;
-          } else if (pathDirs.length === 2) {
-            currentDirLabel = routes[pathDirs[0]][pathDirs[1]]?.label;
-          } else if (pathDirs.length === 3) {
-            currentDirLabel =
-              routes[pathDirs[0]][pathDirs[1]][pathDirs[2]]?.label;
-          } else if (pathDirs.length === 4) {
-            currentDirLabel =
-              routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]]?.label;
-          } else if (pathDirs.length === 5) {
-            currentDirLabel =
-              routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]][
-                pathDirs[4]
-              ]?.label;
-          } else if (pathDirs.length === 6) {
-            currentDirLabel =
-              routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]][
-                pathDirs[4]
-              ][pathDirs[5]]?.label;
-          } else if (pathDirs.length === 7) {
-            currentDirLabel =
-              routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]][
-                pathDirs[4]
-              ][pathDirs[5]][pathDirs[6]]?.label;
-          } else if (pathDirs.length === 8) {
-            currentDirLabel =
-              routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]][
-                pathDirs[4]
-              ][pathDirs[5]][pathDirs[6]][pathDirs[7]]?.label;
-          } else if (pathDirs.length === 9) {
-            currentDirLabel =
-              routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]][
-                pathDirs[4]
-              ][pathDirs[5]][pathDirs[6]][pathDirs[7]][pathDirs[8]]?.label;
-          } else if (pathDirs.length === 10) {
-            currentDirLabel =
-              routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]][
-                pathDirs[4]
-              ][pathDirs[5]][pathDirs[6]][pathDirs[7]][pathDirs[8]][pathDirs[9]]
-                ?.label;
+          try {
+            if (pathDirs.length === 1) {
+              currentDirLabel = routes[pathDirs[0]]?.label;
+            } else if (pathDirs.length === 2) {
+              currentDirLabel = routes[pathDirs[0]][pathDirs[1]]?.label;
+            } else if (pathDirs.length === 3) {
+              currentDirLabel =
+                routes[pathDirs[0]][pathDirs[1]][pathDirs[2]]?.label;
+            } else if (pathDirs.length === 4) {
+              currentDirLabel =
+                routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]]
+                  ?.label;
+            } else if (pathDirs.length === 5) {
+              currentDirLabel =
+                routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]][
+                  pathDirs[4]
+                ]?.label;
+            } else if (pathDirs.length === 6) {
+              currentDirLabel =
+                routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]][
+                  pathDirs[4]
+                ][pathDirs[5]]?.label;
+            } else if (pathDirs.length === 7) {
+              currentDirLabel =
+                routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]][
+                  pathDirs[4]
+                ][pathDirs[5]][pathDirs[6]]?.label;
+            } else if (pathDirs.length === 8) {
+              currentDirLabel =
+                routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]][
+                  pathDirs[4]
+                ][pathDirs[5]][pathDirs[6]][pathDirs[7]]?.label;
+            } else if (pathDirs.length === 9) {
+              currentDirLabel =
+                routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]][
+                  pathDirs[4]
+                ][pathDirs[5]][pathDirs[6]][pathDirs[7]][pathDirs[8]]?.label;
+            } else if (pathDirs.length === 10) {
+              currentDirLabel =
+                routes[pathDirs[0]][pathDirs[1]][pathDirs[2]][pathDirs[3]][
+                  pathDirs[4]
+                ][pathDirs[5]][pathDirs[6]][pathDirs[7]][pathDirs[8]][
+                  pathDirs[9]
+                ]?.label;
+            }
+          } catch (error) {
+            currentDirLabel = "Unknown";
           }
 
           return (
             <BreadcrumbItem key={index}>
               <Link className="text-inherit" href={`/${pathUrl}`}>
-                {currentDir === "" ? "Home" : capitalize(currentDirLabel)}
+                {currentDir === ""
+                  ? "Home"
+                  : currentDirLabel
+                    ? capitalize(currentDirLabel)
+                    : currentDir}
               </Link>
             </BreadcrumbItem>
           );
