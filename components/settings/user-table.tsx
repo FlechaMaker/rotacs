@@ -45,10 +45,7 @@ const roleColorMap: Record<UserRole, ChipProps["color"]> = {
   user: "default",
 };
 
-const UserSettingsTable = React.forwardRef<
-  React.JSX.Element,
-  UserSettingsTableProps
->((props, _) => {
+export default function UserSettingsTable(props: UserSettingsTableProps) {
   const [isTableLoading, setIsTableLoading] = React.useState(true);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
@@ -223,8 +220,4 @@ const UserSettingsTable = React.forwardRef<
       </CardBody>
     </Card>
   );
-});
-
-UserSettingsTable.displayName = "UserSettings";
-
-export default UserSettingsTable;
+}

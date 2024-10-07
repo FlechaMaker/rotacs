@@ -7,15 +7,11 @@ import UserSettingsTable from "@/components/settings/user-table";
 import { db } from "@/lib/db";
 import NewUsersTextarea from "@/components/settings/new-users-textarea";
 
-interface UserSettingsProps {
-  className?: string;
-}
-
-export default async function UserSettings(props: UserSettingsProps) {
+export default async function UserSettings() {
   const users: LuciaUser[] = await db.selectFrom("user").selectAll().execute();
 
   return (
-    <div className={props.className}>
+    <div>
       <div className="p-2">
         <p className="text-base font-medium text-default-700">ユーザー一覧</p>
         <p className="mt-1 text-sm font-normal text-default-400">

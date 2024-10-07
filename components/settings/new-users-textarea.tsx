@@ -6,6 +6,7 @@ import { useFormState } from "react-dom";
 
 import { ActionResult } from "@/types/actions";
 import { createUsers } from "@/app/settings/users/actions";
+import { cn } from "@/lib/cn";
 
 interface NewUsersTextareaProps {
   className?: string;
@@ -13,10 +14,7 @@ interface NewUsersTextareaProps {
 
 const initialCreateUsersState: ActionResult = {};
 
-const NewUsersTextarea = React.forwardRef<
-  React.JSX.Element,
-  NewUsersTextareaProps
->(() => {
+const NewUsersTextarea: React.FC = (props: NewUsersTextareaProps) => {
   const [createUsersState, createUsersDispatch] = useFormState(
     createUsers,
     initialCreateUsersState,
@@ -55,7 +53,7 @@ const NewUsersTextarea = React.forwardRef<
         <Spacer y={2} />
         <form action={createUsersDispatch} onSubmit={onSubmit}>
           <Textarea
-            className="w-full mb-3"
+            className={cn("mb-3 w-full", props.className)}
             errorMessage={createUsersState.errors}
             isDisabled={isLoading}
             isInvalid={
@@ -73,7 +71,7 @@ const NewUsersTextarea = React.forwardRef<
       </CardBody>
     </Card>
   );
-});
+};
 
 NewUsersTextarea.displayName = "NewUsersTextarea";
 
