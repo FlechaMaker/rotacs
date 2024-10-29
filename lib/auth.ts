@@ -197,7 +197,9 @@ export async function login(
     sessionCookie.attributes,
   );
 
-  return redirect("/");
+  const redirectPath = formData.get("redirect");
+
+  return redirect(redirectPath ? redirectPath.toString() : "/");
 }
 
 export async function logout(): Promise<ActionResult> {

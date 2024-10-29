@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useFormState } from "react-dom";
+import { useSearchParams } from "next/navigation";
 import { Button, Input } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 
@@ -13,6 +14,7 @@ const loginInitialState: ActionResult = {
 };
 
 export default function Login() {
+  const searchParams = useSearchParams();
   const [isVisible, setIsVisible] = React.useState(false);
   const [isLoggingIn, setIsLoggingIn] = React.useState(false);
   const [loginState, loginFormAction] = useFormState(login, loginInitialState);
@@ -64,7 +66,12 @@ export default function Login() {
             type={isVisible ? "text" : "password"}
             variant="bordered"
           />
-          <p className=" text-red-500 text-sm h-6">{loginState.errors}</p>
+          <input
+            name="redirect"
+            type="hidden"
+            value={searchParams.get("redirect") || "/"}
+          />
+          <p className="h-6 text-sm text-red-500">{loginState.errors}</p>
           <Button color="primary" isLoading={isLoggingIn} type="submit">
             ログイン
           </Button>

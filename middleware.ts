@@ -10,11 +10,11 @@ export default async function middleware(request: NextRequest) {
     process.env.SESSION_COOKIE_ROLE_NAME ?? "auth_role",
   )?.value;
 
-  console.log(currentUser, currentUserRole, request.nextUrl.pathname);
-
   if (!currentUser) {
     if (request.nextUrl.pathname.match(/^\/(about|settings|logout).*/)) {
-      return Response.redirect(new URL("/login", request.url));
+      return Response.redirect(
+        new URL(`/login?redirect=${request.nextUrl.pathname}`, request.url),
+      );
     }
   } else if (currentUser) {
     if (request.nextUrl.pathname.startsWith("/login")) {
