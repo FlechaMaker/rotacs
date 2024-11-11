@@ -7,15 +7,9 @@ import { Kysely, PostgresDialect } from "kysely";
 
 import { Database } from "@/types/db";
 
-const ca = fs
-  .readFileSync(process.env.POSTGRES_ROOT_CERT ?? "server-ca.pem")
-  .toString();
-const key = fs
-  .readFileSync(process.env.POSTGRES_DB_KEY ?? "client-key.pem")
-  .toString();
-const cert = fs
-  .readFileSync(process.env.POSTGRES_DB_CERT ?? "client-cert.pem")
-  .toString();
+const ca = process.env.POSTGRES_ROOT_CERT;
+const key = process.env.POSTGRES_DB_KEY;
+const cert = process.env.POSTGRES_DB_CERT;
 
 const config: PoolConfig = {
   host: process.env.POSTGRES_HOST,
