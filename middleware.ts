@@ -11,9 +11,7 @@ export default async function middleware(request: NextRequest) {
   )?.value;
 
   if (!currentUser) {
-    if (
-      request.nextUrl.pathname.match(/^\/(about|settings|logout|testrun).*/)
-    ) {
+    if (request.nextUrl.pathname.match(/^\/(settings|logout|testrun\/new).*/)) {
       return Response.redirect(
         new URL(`/login?redirect=${request.nextUrl.pathname}`, request.url),
       );

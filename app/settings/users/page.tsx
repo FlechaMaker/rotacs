@@ -6,6 +6,10 @@ import { User as LuciaUser } from "lucia";
 import UserSettingsTable from "@/components/settings/user-table";
 import { db } from "@/lib/server/db";
 import NewUsersTextarea from "@/components/settings/new-users-textarea";
+import {
+  settingsPageSubtitle,
+  settingsPageTitle,
+} from "@/components/settings/styles";
 
 export default async function UserSettings() {
   const users: LuciaUser[] = await db.selectFrom("user").selectAll().execute();
@@ -13,15 +17,13 @@ export default async function UserSettings() {
   return (
     <div>
       <div className="p-2">
-        <p className="text-base font-medium text-default-700">ユーザー一覧</p>
-        <p className="mt-1 text-sm font-normal text-default-400">
-          ユーザーの削除を行えます．
-        </p>
+        <p className={settingsPageTitle()}>ユーザー一覧</p>
+        <p className={settingsPageSubtitle()}>ユーザーの削除を行えます．</p>
         <UserSettingsTable users={users} />
       </div>
       <div className="p-2">
-        <p className="text-base font-medium text-default-700">ユーザーの追加</p>
-        <p className="mt-1 text-sm font-normal text-default-400">
+        <p className={settingsPageTitle()}>ユーザーの追加</p>
+        <p className={settingsPageSubtitle()}>
           CSV形式でユーザーを追加できます．
         </p>
         <NewUsersTextarea />

@@ -24,7 +24,7 @@ export async function GET(request: Request): Promise<Response> {
   await issueLineNotifyToken(code, state);
 
   // TODO: Redirect to the front-end line-notify success page
-  redirect("/");
+  redirect("/settings/notification");
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -48,5 +48,5 @@ export async function POST(request: Request): Promise<Response> {
   await issueLineNotifyToken(code, state);
 
   // TODO: Redirect to the front-end line-notify success page
-  redirect("/");
+  redirect("/settings/notification");
 }

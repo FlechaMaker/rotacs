@@ -1,14 +1,9 @@
 "use client";
 
 import React from "react";
-import { Icon } from "@iconify/react";
 import {
   Chip,
-  Dropdown,
-  DropdownTrigger,
   Button,
-  DropdownMenu,
-  DropdownItem,
   Card,
   CardBody,
   Table,
@@ -28,6 +23,7 @@ import { useAsyncList } from "@react-stately/data";
 
 import { UserRole } from "@/types/auth";
 import { deleteUsers } from "@/app/settings/users/actions";
+import { cardStyles } from "@/components/settings/styles";
 
 interface UserSettingsTableProps {
   className?: string;
@@ -106,21 +102,23 @@ export default function UserSettingsTable(props: UserSettingsTableProps) {
           );
         case "actions":
           return (
-            <div className="relative flex items-center justify-end gap-2">
-              <Dropdown>
-                <DropdownTrigger>
-                  <Button isIconOnly size="sm" variant="light">
-                    <Icon
-                      className="h-6 w-6 text-default-500"
-                      icon="solar:menu-dots-bold"
-                    />
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu>
-                  <DropdownItem>Delete</DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
-            </div>
+            // 実装されてない
+            <></>
+            //   <div className="relative flex items-center justify-end gap-2">
+            //     <Dropdown>
+            //       <DropdownTrigger>
+            //         <Button isIconOnly size="sm" variant="light">
+            //           <Icon
+            //             className="h-6 w-6 text-default-500"
+            //             icon="solar:menu-dots-bold"
+            //           />
+            //         </Button>
+            //       </DropdownTrigger>
+            //       <DropdownMenu>
+            //         <DropdownItem>Delete</DropdownItem>
+            //       </DropdownMenu>
+            //     </Dropdown>
+            //   </div>
           );
         default:
           return cellValue;
@@ -165,10 +163,7 @@ export default function UserSettingsTable(props: UserSettingsTableProps) {
   }, [handleDeleteSelectedUsers]);
 
   return (
-    <Card
-      className={"mt-4 border border-default-200 bg-transparent"}
-      shadow="none"
-    >
+    <Card className={cardStyles()} shadow="none">
       <CardBody>
         <Table
           isHeaderSticky

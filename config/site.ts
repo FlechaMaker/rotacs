@@ -3,10 +3,10 @@ export type SiteConfig = typeof siteConfig;
 type Route = Record<string, any>;
 
 export const routes: Route = {
-  label: "Home",
+  label: "ホーム",
   href: "/",
   home: {
-    label: "Home",
+    label: "ホーム",
     href: "/",
   },
   about: {
@@ -46,7 +46,7 @@ export const routes: Route = {
 export const siteConfig = {
   name: "RoTACS",
   description: "Robocon Testrun And Check Scheduler",
-  tabItems: [routes.home, routes.testrun],
+  tabItems: [routes.home, routes.testrun, routes.settings],
   navMenuItemsSignedOut: [routes.home, routes.login],
   navMenuItemsSignedIn: [
     routes.home,

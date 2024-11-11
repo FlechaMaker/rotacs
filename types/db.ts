@@ -13,6 +13,7 @@ interface LineNotifyTokenTable {
   issued_at?: Date;
   user_id: string;
   token?: string;
+  description: string;
 }
 
 export type LineNotifyToken = Selectable<LineNotifyTokenTable>;

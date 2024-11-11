@@ -42,6 +42,7 @@ export async function up(kysely: Kysely<any>): Promise<void> {
       column.notNull().references("user.id"),
     )
     .addColumn("token", "varchar", (column) => column.unique())
+    .addColumn("description", "varchar", (column) => column.notNull())
     .execute();
 }
 

@@ -1,10 +1,14 @@
+"use server";
+
 import "server-cli-only";
 
 import { hash } from "@node-rs/argon2";
 import { Session, User } from "lucia";
 import axios from "axios";
+import { redirect } from "next/navigation";
 
 import { db } from "@/lib/server/db";
+import { ActionResult } from "@/types/actions";
 
 interface OAuthAuthorizeParams extends Record<string, string> {
   response_type: "code";
@@ -45,6 +49,7 @@ interface LineNotifyNotifyResponse {
 export async function startLineNotifyAuthorize(
   user: User,
   session: Session,
+  description: string,
 ): Promise<string> {
   const client_id = process.env.LINE_NOTIFY_CLIENT_ID;
 
@@ -71,6 +76,7 @@ export async function startLineNotifyAuthorize(
     .values({
       id: state,
       user_id: user.id,
+      description,
     })
     .returning("id")
     .executeTakeFirstOrThrow();
@@ -150,6 +156,67 @@ export async function issueLineNotifyToken(
     .executeTakeFirstOrThrow();
 
   return token;
+}
+
+export async function revokeNotifyToken(
+  formData: FormData,
+): Promise<ActionResult> {
+  const ids = formData.getAll("id");
+
+  if (!ids || ids.length === 0) {
+    redirect(
+      `/settings/notification/failed?message=${encodeURIComponent("不正なリクエストです．管理者に問題を報告してください．")}`,
+    );
+  }
+
+  ids.forEach(async (id) => {
+    const token = await db
+      .selectFrom("line_notify_token")
+      .where("id", "=", id.toString())
+      .select("token")
+      .executeTakeFirst();
+
+    if (!token) {
+      redirect(
+        `/settings/notification/failed?message=${encodeURIComponent("指定されたトークンが見つかりません")}`,
+      );
+    }
+
+    const url = "https://notify-api.line.me/api/revoke";
+    const headers = {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Bearer ${token.token}`,
+    };
+
+    await axios.post(url, {}, { headers }).then((response) => {
+      const data = response.data as LineNotifyNotifyResponse;
+      const status = data.status;
+      const message = data.message;
+
+      if (status !== 200 && status !== 401) {
+        redirect(
+          `/settings/notification/failed?message=${encodeURIComponent(`Failed to revoke LINE Notify token: ${message}`)}`,
+        );
+      }
+    });
+
+    await db
+      .deleteFrom("line_notify_token")
+      .where("id", "=", id.toString())
+      .execute();
+  });
+
+  redirect(
+    `/settings/notification/success?message=${encodeURIComponent("通知設定を削除しました")}`,
+  );
+}
+
+export async function getUserTokens(user: User) {
+  return db
+    .selectFrom("line_notify_token")
+    .selectAll()
+    .where("user_id", "=", user.id)
+    .execute();
 }
 
 export async function sendLineNotifyMessage(
