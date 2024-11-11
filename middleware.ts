@@ -11,16 +11,14 @@ export default async function middleware(request: NextRequest) {
   )?.value;
 
   if (!currentUser) {
-    if (request.nextUrl.pathname.match(/^\/(about|settings|logout).*/)) {
+    if (
+      request.nextUrl.pathname.match(/^\/(about|settings|logout|testrun).*/)
+    ) {
       return Response.redirect(
         new URL(`/login?redirect=${request.nextUrl.pathname}`, request.url),
       );
     }
   } else if (currentUser) {
-    if (request.nextUrl.pathname.startsWith("/login")) {
-      return Response.redirect(new URL("/", request.url));
-    }
-
     if (currentUserRole === "user") {
       if (request.nextUrl.pathname.match(/^\/settings\/(users).*/)) {
         return Response.redirect(new URL("/settings", request.url));

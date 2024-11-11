@@ -1,7 +1,7 @@
 import { Lucia } from "lucia";
 import { NodePostgresAdapter } from "@lucia-auth/adapter-postgresql";
 
-import { pool } from "@/lib/db";
+import { pool } from "@/lib/server/db";
 
 const adapter = new NodePostgresAdapter(pool, {
   user: "user",

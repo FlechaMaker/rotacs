@@ -5,10 +5,10 @@ import "server-cli-only";
 import { parse as parseCsv } from "csv/sync";
 import { redirect } from "next/navigation";
 
-import { db } from "@/lib/db";
+import { db } from "@/lib/server/db";
 import { UserTable, UserRole } from "@/types/auth";
 import { ActionResult } from "@/types/actions";
-import { createUserInfo } from "@/lib/auth";
+import { createUserInfo } from "@/lib/server/auth";
 
 export async function createUsers(
   state: ActionResult,

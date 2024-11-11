@@ -4,7 +4,7 @@ import React from "react";
 import { User as LuciaUser } from "lucia";
 
 import UserSettingsTable from "@/components/settings/user-table";
-import { db } from "@/lib/db";
+import { db } from "@/lib/server/db";
 import NewUsersTextarea from "@/components/settings/new-users-textarea";
 
 export default async function UserSettings() {

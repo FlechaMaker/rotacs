@@ -1,7 +1,12 @@
 import React from "react";
 
 import SettingTabs from "@/components/settings/setting-tabs";
-import { validateRequest } from "@/lib/auth";
+import { validateRequest } from "@/lib/server/auth";
+import {
+  pageContainer,
+  pageSubtitle,
+  pageTitle,
+} from "@/components/primitives";
 
 export default async function Layout({
   children,
@@ -12,12 +17,12 @@ export default async function Layout({
   const isAdmin = user?.role === "admin";
 
   return (
-    <div className="h-full w-full flex-1 flex-col p-4">
+    <div className={pageContainer()}>
       {/* Title */}
-      <div className="flex items-center gap-x-3">
-        <h1 className="text-3xl font-bold text-default-foreground">設定</h1>
+      <div className="flex-col items-center">
+        <h1 className={pageTitle()}>設定</h1>
+        <h2 className={pageSubtitle()}>設定の確認と変更ができます．</h2>
       </div>
-      <h2 className="mt-2 text-small text-default-500">設定に関する説明</h2>
       <SettingTabs isAdmin={isAdmin} />
       {children}
     </div>

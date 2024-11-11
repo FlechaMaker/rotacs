@@ -13,6 +13,14 @@ export const routes: Route = {
     label: "About",
     href: "/about",
   },
+  testrun: {
+    label: "テストラン一覧",
+    href: "/testrun",
+    new: {
+      label: "テストラン予約",
+      href: "/testrun/new",
+    },
+  },
   settings: {
     label: "設定",
     href: "/settings",
@@ -38,7 +46,7 @@ export const routes: Route = {
 export const siteConfig = {
   name: "RoTACS",
   description: "Robocon Testrun And Check Scheduler",
-  tabItems: [routes.home, routes.about],
+  tabItems: [routes.home, routes.testrun],
   navMenuItemsSignedOut: [routes.home, routes.login],
   navMenuItemsSignedIn: [
     routes.home,

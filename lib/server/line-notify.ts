@@ -4,7 +4,7 @@ import { hash } from "@node-rs/argon2";
 import { Session, User } from "lucia";
 import axios from "axios";
 
-import { db } from "@/lib/db";
+import { db } from "@/lib/server/db";
 
 interface OAuthAuthorizeParams extends Record<string, string> {
   response_type: "code";

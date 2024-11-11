@@ -32,20 +32,10 @@ export default function ResultCard(props: ResultCardProps) {
       >
         <CardHeader className="px-6 pb-0 pt-6">
           <div className="flex flex-col items-start">
-            <h4
-              className={cn(
-                "text-lg font-bold",
-                `text-${props.status ? props.status : "default"}-foreground`,
-              )}
-            >
+            <h4 className={cn("text-lg font-bold", `text-default-foreground`)}>
               {props.title}
             </h4>
-            <p
-              className={cn(
-                "text-small",
-                `text-${props.status ? props.status : "default"}-500`,
-              )}
-            >
+            <p className={cn("text-small", `text-default-500`)}>
               {props.message}
             </p>
           </div>

@@ -5,7 +5,7 @@ import { stdout } from "process";
 
 import { Migrator, FileMigrationProvider, NO_MIGRATIONS } from "kysely";
 
-import { db } from "@/lib/db";
+import { db } from "@/lib/server/db";
 
 const console = new Console(stdout);
 

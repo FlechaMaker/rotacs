@@ -5,12 +5,13 @@ import { stdout } from "process";
 
 import { Migrator, FileMigrationProvider } from "kysely";
 
-import { db } from "@/lib/db";
+import { db, pool, dialect } from "@/lib/server/db";
 
 const console = new Console(stdout);
 
 async function migrateToLatest() {
   console.log("Migrating database to latest version");
+
   const migrator = new Migrator({
     db,
     provider: new FileMigrationProvider({
@@ -28,13 +29,13 @@ async function migrateToLatest() {
     } else if (it.status === "Error") {
       console.error(`Migration "${it.migrationName}" failed`);
     }
-
-    if (error) {
-      console.error("Failed to migrate database");
-      console.error(error);
-      process.exit(1);
-    }
   });
+
+  if (error) {
+    console.error("Failed to migrate database");
+    console.error(error);
+    process.exit(1);
+  }
 
   await db.destroy();
 }

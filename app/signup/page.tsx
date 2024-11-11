@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { signup } from "@/lib/auth";
+import { signup } from "@/lib/server/auth";
 
 export default async function Page() {
   return (

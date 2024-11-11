@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Button, Input } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 
-import { login } from "@/lib/auth";
+import { login } from "@/lib/server/auth";
 import { ActionResult } from "@/types/actions";
 
 const loginInitialState: ActionResult = {

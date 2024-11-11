@@ -5,7 +5,7 @@ import "client-only";
 import React from "react";
 import { Button } from "@nextui-org/react";
 
-import { logout } from "@/lib/auth";
+import { logout } from "@/lib/server/auth";
 
 export default function Logout() {
   const [isLoggingIn, setIsLoggingIn] = React.useState(false);

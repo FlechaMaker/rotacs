@@ -8,8 +8,8 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { hash, verify } from "@node-rs/argon2";
 
-import { db } from "@/lib/db";
-import { lucia } from "@/lib/lucia";
+import { db } from "@/lib/server/db";
+import { lucia } from "@/lib/server/lucia";
 import { ActionResult } from "@/types/actions";
 import { UserTable } from "@/types/auth";
 import { DatabaseUserAttributes, UserRole } from "@/types/auth";
@@ -206,6 +206,13 @@ export async function logout(): Promise<ActionResult> {
   const { session } = await validateRequest();
 
   if (!session) {
+    // already logged out
+    cookies().set(
+      process.env.SESSION_COOKIE_ROLE_NAME!,
+      "",
+      lucia.createBlankSessionCookie().attributes,
+    );
+
     return {
       errors: "Unauthorized",
     };

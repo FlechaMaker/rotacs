@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
-import { title } from "@/components/primitives";
-import { validateRequest } from "@/lib/auth";
+import { homeTitle } from "@/components/primitives";
+import { validateRequest } from "@/lib/server/auth";
 
 export default async function AboutPage() {
   const { user } = await validateRequest();
@@ -12,7 +12,7 @@ export default async function AboutPage() {
 
   return (
     <div>
-      <h1 className={title()}>Hello, {user.username}!</h1>
+      <h1 className={homeTitle()}>Hello, {user.username}!</h1>
     </div>
   );
 }

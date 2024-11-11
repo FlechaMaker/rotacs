@@ -1,0 +1,56 @@
+"use client";
+
+import "client-only";
+
+import React from "react";
+import { useFormState } from "react-dom";
+import { useRouter } from "next/navigation";
+import { Button, Radio, RadioGroup } from "@nextui-org/react";
+
+import { ActionResult } from "@/types/actions";
+import { createTestrun } from "@/lib/server/testrun";
+
+const initialState: ActionResult = {
+  errors: "",
+};
+
+export default function NewTestrun() {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [formState, formAction] = useFormState(createTestrun, initialState);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+  };
+
+  React.useEffect(() => {
+    if (isSubmitting) {
+      if (formState.errors) {
+        router.push("/testrun/new/failed?message=" + formState.errors);
+      } else {
+        router.push("/testrun/new/success");
+      }
+    }
+  }, [formState]);
+
+  return (
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="flex w-full max-w-sm flex-col gap-4 rounded-large bg-content1 px-8 pb-10 pt-6 shadow-small">
+        <p className="pb-2 text-xl font-medium">新規テストラン予約</p>
+        <form
+          action={formAction}
+          className="flex flex-col gap-3"
+          onSubmit={handleSubmit}
+        >
+          <RadioGroup label="フィールドの色を選択してください" name="side">
+            <Radio value="赤">赤</Radio>
+            <Radio value="青">青</Radio>
+          </RadioGroup>
+          <Button color="primary" isLoading={isSubmitting} type="submit">
+            予約する
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+}

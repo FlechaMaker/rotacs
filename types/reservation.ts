@@ -1,0 +1,52 @@
+export class Reservation<StatusType extends string, SideType extends string> {
+  reserved_at: Date;
+  fixed_at: Date | null;
+  finished_at: Date | null;
+  user_id: string;
+  user_display_name: string;
+  reservation_count: number;
+  status: StatusType;
+  side: SideType;
+
+  constructor(
+    options: Partial<Reservation<StatusType, SideType>> & {
+      user_id: string;
+      user_display_name: string;
+      reservation_count: number;
+      status: StatusType;
+      side: SideType;
+    },
+  ) {
+    this.reserved_at = options.reserved_at ?? new Date();
+    this.fixed_at = options.fixed_at ?? null;
+    this.finished_at = options.finished_at ?? null;
+    this.user_id = options.user_id;
+    this.user_display_name = options.user_display_name;
+    this.reservation_count = options.reservation_count;
+    this.status = options.status;
+    this.side = options.side;
+  }
+}
+
+export type ScheduleType<StatusType extends string, SideType extends string> = {
+  [key in SideType]: {
+    [key in StatusType]: string[];
+  };
+};
+
+export class Schedule<StatusType extends string, SideType extends string> {
+  schedule: ScheduleType<StatusType, SideType>;
+
+  constructor(initial?: Schedule<StatusType, SideType>) {
+    this.schedule = initial?.schedule ?? ({} as any);
+  }
+
+  get(side: SideType, status: StatusType) {
+    return this.schedule[side]?.[status] ?? [];
+  }
+
+  set(side: SideType, status: StatusType, reservation_ids: string[]) {
+    this.schedule[side] = this.schedule[side] ?? {};
+    this.schedule[side][status] = reservation_ids;
+  }
+}

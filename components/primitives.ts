@@ -1,6 +1,31 @@
 import { tv } from "tailwind-variants";
 
-export const title = tv({
+export const pageTitle = tv({
+  base: "tracking-tight block font-bold text-default-foreground",
+  variants: {
+    size: {
+      sm: "text-xl lg:text-2xl",
+      md: "text-3xl lg:text-4xl",
+      lg: "text-[2.3rem] lg:text-5xl leading-9",
+    },
+    fullWidth: {
+      true: "w-full block",
+    },
+  },
+  defaultVariants: {
+    size: "md",
+  },
+});
+
+export const pageSubtitle = tv({
+  base: "w-full mt-1 text-small text-default-500 block max-w-full",
+});
+
+export const pageContainer = tv({
+  base: "w-full h-full flex-1 flex-col p-4",
+});
+
+export const homeTitle = tv({
   base: "tracking-tight inline font-semibold",
   variants: {
     color: {
@@ -40,7 +65,7 @@ export const title = tv({
   ],
 });
 
-export const subtitle = tv({
+export const homeSubtitle = tv({
   base: "w-full md:w-1/2 my-2 text-lg lg:text-xl text-default-600 block max-w-full",
   variants: {
     fullWidth: {

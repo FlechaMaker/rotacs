@@ -90,7 +90,7 @@ export function Navbar(props: { userJson: string }) {
                 radius: "full",
                 variant: "light",
               })}
-              href="/settings"
+              href="/settings/notification"
             >
               <Icon
                 className="text-default-500"

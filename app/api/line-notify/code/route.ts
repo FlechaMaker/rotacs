@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { issueLineNotifyToken } from "@/lib/line-notify";
+import { issueLineNotifyToken } from "@/lib/server/line-notify";
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
