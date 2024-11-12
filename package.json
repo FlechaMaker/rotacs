@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix",
+    "test": "vitest",
     "migrate": "RUNNING_IN_CLI=true node -r dotenv/config -r esbuild-register scripts/migrateToLatest.ts",
     "migrate:down:all": "RUNNING_IN_CLI=true node -r dotenv/config -r esbuild-register scripts/migrateDownAll.ts"
   },
@@ -60,13 +61,23 @@
     "usehooks-ts": "^3.1.0"
   },
   "devDependencies": {
+    "@types/eslint": "~9.6.1",
+    "@types/eslint-config-prettier": "~6.11.3",
+    "@types/eslint-plugin-jsx-a11y": "~6.9.0",
+    "@types/eslint-plugin-tailwindcss": "~3.17.0",
+    "@types/jsdom": "~21.1.7",
     "@types/pg": "^8.11.10",
+    "@vitejs/plugin-react": "^4.3.3",
     "dotenv": "^16.4.5",
     "esbuild": "^0.21.5",
     "esbuild-register": "^3.6.0",
     "eslint-plugin-tailwindcss": "^3.17.5",
+    "jsdom": "^25.0.1",
     "prettier": "^3.3.3",
-    "prettier-plugin-tailwindcss": "^0.6.8"
+    "prettier-plugin-tailwindcss": "^0.6.8",
+    "typesync": "^0.13.4",
+    "vite-tsconfig-paths": "^5.1.2",
+    "vitest": "^2.1.4"
   },
   "packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee"
 }
