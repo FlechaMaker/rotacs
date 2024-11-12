@@ -1,7 +1,5 @@
 import "server-cli-only";
 
-import fs from "node:fs";
-
 import { Pool, PoolConfig } from "pg";
 import { Kysely, PostgresDialect } from "kysely";
 

@@ -18,7 +18,13 @@ export function validateFormData<SideType extends string>(formData: FormData) {
   }
   const side = sideValue.toString() as SideType;
 
-  return { side };
+  let bookerId: string | undefined = undefined;
+
+  if (formData.has("bookerId")) {
+    bookerId = formData.get("bookerId")?.toString();
+  }
+
+  return { side, bookerId };
 }
 
 export function reservationDataConverter<

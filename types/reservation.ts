@@ -1,4 +1,7 @@
+import { ulid } from "ulid";
+
 export class Reservation<StatusType extends string, SideType extends string> {
+  readonly id: string;
   reserved_at: Date;
   fixed_at: Date | null;
   finished_at: Date | null;
@@ -17,6 +20,7 @@ export class Reservation<StatusType extends string, SideType extends string> {
       side: SideType;
     },
   ) {
+    this.id = options.id ?? ulid();
     this.reserved_at = options.reserved_at ?? new Date();
     this.fixed_at = options.fixed_at ?? null;
     this.finished_at = options.finished_at ?? null;
@@ -49,4 +53,6 @@ export class Schedule<StatusType extends string, SideType extends string> {
     this.schedule[side] = this.schedule[side] ?? {};
     this.schedule[side][status] = reservation_ids;
   }
+
+  // static fromUnsorted(reservations: Reservation<StatusType, SideType>[]) {;
 }

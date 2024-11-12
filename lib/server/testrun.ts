@@ -3,6 +3,7 @@
 import "server-cli-only";
 
 import { FirestoreDataConverter } from "firebase-admin/firestore";
+import { User } from "lucia";
 
 import {
   TestrunReservation,
@@ -10,38 +11,101 @@ import {
   TestrunStatus,
   TESTRUN_COLLECTION,
 } from "@/types/testrun";
+import { ActionResult } from "@/types/actions";
 import { getFirestore } from "@/lib/firebase/serverApp";
 import { validateRequest } from "@/lib/server/auth";
 import {
   reservationDataConverter,
   validateFormData,
 } from "@/lib/server/reservation";
-import { ActionResult } from "@/types/actions";
+import { db } from "@/lib/server/db";
+
+export async function testConcurrentCreateTestrun(
+  state: ActionResult,
+  formData: FormData,
+) {
+  const formDataArray = Array.from({ length: 10 }, () => new FormData());
+
+  formDataArray[0].set("bookerId", "r5dwiqin65fqevpq"); // 旭川
+  formDataArray[1].set("bookerId", "afyka24kl4kqyrq6"); // 函館
+  formDataArray[2].set("bookerId", "efpv6gripyd6h5us"); // 一関
+  formDataArray[3].set("bookerId", "r5dwiqin65fqevpq"); // 旭川
+  formDataArray[4].set("bookerId", "afyka24kl4kqyrq6"); // 函館
+  formDataArray[5].set("bookerId", "efpv6gripyd6h5us"); // 一関
+  formDataArray[6].set("bookerId", "qgt2wxnvvvjdrdnl"); // 福島
+  formDataArray[7].set("bookerId", "zvmsvdybu7ty7ssn"); // 鶴岡
+  formDataArray[8].set("bookerId", "dsfdjf7t5wrvryob"); // 小山
+  formDataArray[9].set("bookerId", "hrwxvtti4iepaxli"); // 木更津
+
+  formData.forEach((value, key) => {
+    formDataArray.forEach((fd) => fd.append(key, value));
+  });
+
+  const promises = formDataArray.map((fd) => createTestrun(state, fd));
+
+  const results = await Promise.all(promises);
+
+  // Merge results with numbering
+  const errors = results
+    .map((result, index) => `Error ${index + 1}: ${result.errors}`)
+    .filter((error) => error !== "Error ${index + 1}: ")
+    .join("\n");
+
+  return { errors };
+}
 
 export async function createTestrun(
   state: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
-  const { user } = await validateRequest();
+  const { user: currentUser } = await validateRequest();
 
-  if (!user) {
+  if (!currentUser) {
     return { errors: "認証情報が不正です．ログインしなおしてください" };
   }
 
   let side: TestrunSide;
+  let bookerId: string | undefined;
+  let booker: User;
 
   try {
-    const ret = validateFormData<TestrunSide>(formData);
-
-    side = ret.side;
+    ({ side, bookerId } = validateFormData<TestrunSide>(formData));
   } catch (e: any) {
     return { errors: e.toString() };
+  }
+
+  // Adminは他のユーザの予約を作成できる
+  if (currentUser.role === "admin") {
+    if (bookerId) {
+      const _booker = await db
+        .selectFrom("user")
+        .where("id", "=", bookerId)
+        .selectAll()
+        .executeTakeFirst();
+
+      if (!_booker) {
+        return { errors: "指定されたユーザが存在しません" };
+      }
+
+      booker = _booker;
+    } else {
+      booker = currentUser;
+    }
+  } else {
+    if (bookerId && bookerId !== currentUser.id) {
+      return { errors: "他のユーザの予約を作成することはできません" };
+    }
+
+    booker = currentUser;
   }
 
   try {
     const firestore = await getFirestore();
 
+    console.log(`[${booker.display_name}] トランザクション開始前`);
     const result = await firestore.runTransaction(async (transaction) => {
+      console.log(`[${booker.display_name}] トランザクション開始`);
+
       const collection = firestore
         .collection(TESTRUN_COLLECTION)
         .withConverter(testrunDataConverter());
@@ -53,32 +117,46 @@ export async function createTestrun(
       ];
 
       const incompleteRef = collection
-        .where("user_id", "==", user.id)
+        .where("user_id", "==", booker.id)
         .where("status", "in", existsStatus);
       const incompleteSnapshot = await transaction.get(incompleteRef);
+
+      console.log(
+        `[${booker.display_name}] incompleteSnapshot.size: ${incompleteSnapshot.size}`,
+      );
 
       if (!incompleteSnapshot.empty) {
         return { errors: "既に予約が存在します" };
       }
 
       const finishedRef = collection
-        .where("user_id", "==", user.id)
+        .where("user_id", "==", booker.id)
         .where("status", "==", "終了");
       const finishedSnapshot = await transaction.get(finishedRef);
       const reservationCount = finishedSnapshot.size + 1;
 
+      console.log(
+        `[${booker.display_name}] reservationCount: ${reservationCount}`,
+      );
+
       const testrun = new TestrunReservation({
-        user_id: user.id,
-        user_display_name: user.display_name,
+        user_id: booker.id,
+        user_display_name: booker.display_name,
         reservation_count: reservationCount,
         status: "順番待ち",
         side,
       });
 
-      const reservationRef = collection.doc();
+      console.log(
+        `[${booker.display_name}] testrun: ${JSON.stringify(testrun)}`,
+      );
+
+      const reservationRef = collection.doc(testrun.id);
 
       transaction.set(reservationRef, testrun);
     });
+
+    console.log(`[${booker.display_name}] トランザクション終了`);
 
     if (result?.errors) {
       return result;

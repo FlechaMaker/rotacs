@@ -8,7 +8,10 @@ import { useRouter } from "next/navigation";
 import { Button, Radio, RadioGroup } from "@nextui-org/react";
 
 import { ActionResult } from "@/types/actions";
-import { createTestrun } from "@/lib/server/testrun";
+import {
+  createTestrun,
+  testConcurrentCreateTestrun,
+} from "@/lib/server/testrun";
 
 const initialState: ActionResult = {
   errors: "",
@@ -17,7 +20,11 @@ const initialState: ActionResult = {
 export default function NewTestrun() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [formState, formAction] = useFormState(createTestrun, initialState);
+  // const [formState, formAction] = useFormState(createTestrun, initialState);
+  const [formState, formAction] = useFormState(
+    testConcurrentCreateTestrun,
+    initialState,
+  );
 
   const handleSubmit = async () => {
     setIsSubmitting(true);

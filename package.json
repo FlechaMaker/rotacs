@@ -58,6 +58,7 @@
     "tailwind-variants": "^0.1.20",
     "tailwindcss": "3.4.3",
     "typescript": "5.0.4",
+    "ulid": "^2.3.0",
     "usehooks-ts": "^3.1.0"
   },
   "devDependencies": {
