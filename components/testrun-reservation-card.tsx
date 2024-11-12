@@ -25,7 +25,11 @@ import { tv } from "tailwind-variants";
 import { Icon } from "@iconify/react";
 
 import { cn } from "@/lib/cn";
-import { TestrunReservation, TestrunStatus } from "@/types/testrun";
+import {
+  TestrunReservation,
+  TestrunStatus,
+  TestrunStatuses,
+} from "@/types/testrun";
 import {
   getTestrunReservation,
   onTestrunReservationChange,
@@ -120,6 +124,7 @@ export default function TestrunReservationCard(
             <Button
               className="flex"
               color="primary"
+              isLoading={isSubmitting}
               size="sm"
               onPress={() => handleStatusUpdate("準備中")}
             >
@@ -132,6 +137,7 @@ export default function TestrunReservationCard(
             <Button
               className="flex"
               color="success"
+              isLoading={isSubmitting}
               size="sm"
               onPress={() => handleStatusUpdate("実施中")}
             >
@@ -144,6 +150,7 @@ export default function TestrunReservationCard(
             <Button
               className="flex"
               color="danger"
+              isLoading={isSubmitting}
               size="sm"
               onPress={() => handleStatusUpdate("終了")}
             >
@@ -187,7 +194,9 @@ export default function TestrunReservationCard(
                       />
                     </Button>
                   </DropdownTrigger>
-                  <DropdownMenu>
+                  <DropdownMenu
+                    disabledKeys={isSubmitting ? TestrunStatuses : []}
+                  >
                     <DropdownSection title="状態変更">
                       <DropdownItem
                         key="順番待ち"
