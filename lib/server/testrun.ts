@@ -89,7 +89,12 @@ export async function createTestrun(
       const collection = firestore
         .collection(TESTRUN_COLLECTION)
         .withConverter(testrunDataConverter());
-      const existsStatus: TestrunStatus[] = ["順番待ち", "準備中", "実施中"];
+      const existsStatus: TestrunStatus[] = [
+        "順番待ち",
+        "実施決定",
+        "準備中",
+        "実施中",
+      ];
 
       const incompleteRef = collection
         .where("user_id", "==", booker.id)
@@ -167,8 +172,26 @@ export async function updateTestrunStatus(
         status: newState,
       };
 
-      if (prevState === "順番待ち" && ["準備中", "実施中"].includes(newState)) {
+      if (
+        prevState === "順番待ち" &&
+        ["実施決定", "準備中", "実施中"].includes(newState)
+      ) {
         update.fixed_at = new Date();
+      }
+
+      // 順番待ちに戻す時は固定時刻と通知フラグをリセット
+      if (
+        ["実施決定", "準備中", "実施中"].includes(prevState || "") &&
+        newState === "順番待ち"
+      ) {
+        update.fixed_at = null;
+        update.pre_call_sent = false;
+        update.call_sent = false;
+      }
+
+      // 終了またはキャンセルから他の状態に戻す時は終了時刻をリセット
+      if (prevState === "終了" || prevState === "キャンセル") {
+        update.finished_at = null;
       }
 
       if (newState === "終了" || newState === "キャンセル") {
@@ -266,19 +289,16 @@ async function sendCall(at: number, status: TestrunStatus) {
       // 通知内容を作成
       let message = "";
 
-      switch (at) {
-        case 0:
-          // 呼び出し通知
-          message = `から ${receiver.display_name} さんへお知らせ
+      if (status === "実施決定") {
+        // 呼び出し通知
+        message = `から ${receiver.display_name} さんへお知らせ
 [${target.user_display_name}高専 ${target.reservation_count}回目] テストランの順番になりました．テストラン待機エリアに移動してください．`;
-          break;
-        case 1:
-          // 事前通知
-          message = `から ${receiver.display_name} さんへお知らせ
+      } else if (status === "順番待ち" && at === 0) {
+        // 事前通知
+        message = `から ${receiver.display_name} さんへお知らせ
 [${target.user_display_name}高専 ${target.reservation_count}回目] テストランが近づいています．呼び出された時に移動できるよう準備をお願いします．
 他チームの予約状況により順番が前後することもあるため，テストラン一覧を確認してください．
 https://rotacs.yuchi.jp/testrun`;
-          break;
       }
 
       // 通知を送信

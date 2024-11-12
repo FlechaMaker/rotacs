@@ -55,6 +55,7 @@ export default function Testrun() {
     "終了",
     "実施中",
     "準備中",
+    "実施決定",
     "順番待ち",
     "キャンセル",
   ];
@@ -68,22 +69,22 @@ export default function Testrun() {
       <Spinner className="flex py-4" label="読み込み中..." />
     ) : (
       <Accordion
+        defaultExpandedKeys={["実施中", "準備中", "実施決定", "順番待ち"]}
         selectionMode="multiple"
-        defaultExpandedKeys={["実施中", "準備中", "順番待ち"]}
       >
         {statusOrder.map((status) => (
           <AccordionItem
             key={status}
+            aria-label={status}
             title={
               <span className="block w-full text-center text-xl font-bold text-default-700">
                 {status}
               </span>
             }
-            aria-label={status}
           >
             <div
               key={`${status}-items`}
-              className="my-4 grid grid-cols-2 gap-8"
+              className="my-4 grid grid-cols-2 gap-4 md:gap-8"
             >
               {TestrunSides.map((side) => (
                 <div

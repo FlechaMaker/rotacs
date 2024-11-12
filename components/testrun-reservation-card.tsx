@@ -95,7 +95,7 @@ export default function TestrunReservationCard(
 
   if (reservation) {
     if (
-      ["準備中", "実施中"].includes(reservation.status) &&
+      ["実施決定", "準備中", "実施中"].includes(reservation.status) &&
       reservation.fixed_at
     ) {
       updateTime =
@@ -126,9 +126,22 @@ export default function TestrunReservationCard(
               color="primary"
               isLoading={isSubmitting}
               size="sm"
+              onPress={() => handleStatusUpdate("実施決定")}
+            >
+              実施決定
+            </Button>
+          );
+          break;
+        case "実施決定":
+          changeStatusButton = (
+            <Button
+              className="flex"
+              color="primary"
+              isLoading={isSubmitting}
+              size="sm"
               onPress={() => handleStatusUpdate("準備中")}
             >
-              準備開始
+              準備中
             </Button>
           );
           break;
@@ -163,7 +176,7 @@ export default function TestrunReservationCard(
 
     card = (
       <Card className={cn("w-full flex-col items-stretch p-2", props.bgColor)}>
-        <CardHeader className="grid w-full max-w-full grid-cols-3 justify-center gap-4">
+        <CardHeader className="grid w-full max-w-full grid-cols-1 justify-center gap-1 sm:grid-cols-3 sm:gap-4">
           <div className="flex-col items-start justify-start">
             <p className={infoText()}>
               {`受信時刻: ${reservation.reserved_at.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`}
@@ -204,6 +217,13 @@ export default function TestrunReservationCard(
                         onPress={() => handleStatusUpdate("順番待ち")}
                       >
                         順番待ち
+                      </DropdownItem>
+                      <DropdownItem
+                        key="実施決定"
+                        color="primary"
+                        onPress={() => handleStatusUpdate("実施決定")}
+                      >
+                        実施決定
                       </DropdownItem>
                       <DropdownItem
                         key="準備中"

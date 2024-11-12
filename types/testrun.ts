@@ -6,6 +6,7 @@ export const TESTRUN_COLLECTION =
 
 export const TestrunStatuses = [
   "順番待ち",
+  "実施決定",
   "準備中",
   "実施中",
   "終了",
@@ -71,6 +72,7 @@ export class TestrunSchedule extends Schedule<TestrunStatus, TestrunSide> {
             ids = sorted.map((r) => r.id);
             schedule.set(side, status, ids);
             break;
+          case "実施決定":
           case "準備中":
           case "実施中":
             sorted = filtered.sort((a, b) => {
