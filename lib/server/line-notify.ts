@@ -188,17 +188,22 @@ export async function revokeNotifyToken(
       Authorization: `Bearer ${token.token}`,
     };
 
-    await axios.post(url, {}, { headers }).then((response) => {
-      const data = response.data as LineNotifyNotifyResponse;
-      const status = data.status;
-      const message = data.message;
+    await axios
+      .post(url, {}, { headers })
+      .then((response) => {
+        const data = response.data as LineNotifyNotifyResponse;
+        const status = data.status;
+        const message = data.message;
 
-      if (status !== 200 && status !== 401) {
-        redirect(
-          `/settings/notification/failed?message=${encodeURIComponent(`Failed to revoke LINE Notify token: ${message}`)}`,
-        );
-      }
-    });
+        if (status !== 200 && status !== 401) {
+          redirect(
+            `/settings/notification/failed?message=${encodeURIComponent(`Failed to revoke LINE Notify token: ${message}`)}`,
+          );
+        }
+      })
+      .catch((error) => {
+        console.warn(`Failed to revoke LINE Notify token: ${error.message}`);
+      });
 
     await db
       .deleteFrom("line_notify_token")
