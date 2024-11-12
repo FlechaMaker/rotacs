@@ -43,85 +43,9 @@ export async function getTestrunSchedule(): Promise<TestrunSchedule> {
     testrunDataConverter(),
   );
   const snapshot = await getDocs(q);
+  const reservations = snapshot.docs.map((doc) => doc.data());
 
-  let schedule = new TestrunSchedule();
-
-  if (snapshot.size === 0) {
-    console.info("まだテストラン予約がありません");
-
-    return schedule;
-  }
-
-  TestrunSides.forEach((side) => {
-    TestrunStatuses.forEach((status) => {
-      const filtered = snapshot.docs.filter((doc) => {
-        const data = doc.data();
-
-        return data.side === side && data.status === status;
-      });
-      let sorted, ids;
-
-      switch (status) {
-        case "終了":
-        case "キャンセル":
-          sorted = filtered.sort((a, b) => {
-            const aData = a.data();
-            const bData = b.data();
-
-            const aFinishedAt = aData.finished_at;
-            const bFinishedAt = bData.finished_at;
-
-            if (aFinishedAt === null || bFinishedAt === null) {
-              return 0;
-            }
-
-            return aFinishedAt > bFinishedAt ? 1 : -1;
-          });
-          ids = sorted.map((doc) => doc.id);
-          schedule.set(side, status, ids);
-          break;
-        case "実施決定":
-        case "準備中":
-        case "実施中":
-          sorted = filtered.sort((a, b) => {
-            const aData = a.data();
-            const bData = b.data();
-
-            const aFixedAt = aData.fixed_at;
-            const bFixedAt = bData.fixed_at;
-
-            if (aFixedAt === null || bFixedAt === null) {
-              return 0;
-            }
-
-            return aFixedAt > bFixedAt ? 1 : -1;
-          });
-          ids = sorted.map((doc) => doc.id);
-          schedule.set(side, status, ids);
-          break;
-        default:
-          sorted = filtered.sort((a, b) => {
-            const aData = a.data();
-            const bData = b.data();
-
-            const aReservationCount = aData.reservation_count;
-            const bReservationCount = bData.reservation_count;
-
-            if (aReservationCount === bReservationCount) {
-              const aReservedAt = aData.reserved_at;
-              const bReservedAt = bData.reserved_at;
-
-              return aReservedAt > bReservedAt ? 1 : -1;
-            }
-
-            return aReservationCount > bReservationCount ? 1 : -1;
-          });
-          ids = sorted.map((doc) => doc.id);
-          schedule.set(side, status, ids);
-          break;
-      }
-    });
-  });
+  let schedule = TestrunSchedule.fromUnsorted(reservations);
 
   return schedule;
 }

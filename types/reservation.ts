@@ -10,6 +10,8 @@ export class Reservation<StatusType extends string, SideType extends string> {
   reservation_count: number;
   status: StatusType;
   side: SideType;
+  pre_call_sent: boolean;
+  call_sent: boolean;
 
   constructor(
     options: Partial<Reservation<StatusType, SideType>> & {
@@ -29,6 +31,8 @@ export class Reservation<StatusType extends string, SideType extends string> {
     this.reservation_count = options.reservation_count;
     this.status = options.status;
     this.side = options.side;
+    this.pre_call_sent = options.pre_call_sent ?? false;
+    this.call_sent = options.call_sent ?? false;
   }
 }
 

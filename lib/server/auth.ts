@@ -4,6 +4,7 @@ import "server-cli-only";
 
 import { generateIdFromEntropySize, type Session, type User } from "lucia";
 import { cookies } from "next/headers";
+import { setCookie } from "cookies-next/server";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { hash, verify } from "@node-rs/argon2";
@@ -112,11 +113,17 @@ export async function signup(formData: FormData): Promise<ActionResult> {
     sessionCookie.value,
     sessionCookie.attributes,
   );
-  cookies().set(
-    process.env.SESSION_COOKIE_ROLE_NAME!,
+  await setCookie(
+    process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME!,
     userEntry.role,
-    sessionCookie.attributes,
+    { cookies },
   );
+
+  // cookies().set(
+  //   process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME!,
+  //   userEntry.role,
+  //   sessionCookie.attributes,
+  // );
 
   return redirect("/");
 }
@@ -191,12 +198,11 @@ export async function login(
     sessionCookie.value,
     sessionCookie.attributes,
   );
-  cookies().set(
-    process.env.SESSION_COOKIE_ROLE_NAME!,
+  await setCookie(
+    process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME!,
     existingUser.role,
-    sessionCookie.attributes,
+    { cookies },
   );
-
   const redirectPath = formData.get("redirect");
 
   return redirect(redirectPath ? redirectPath.toString() : "/");
@@ -207,12 +213,9 @@ export async function logout(): Promise<ActionResult> {
 
   if (!session) {
     // already logged out
-    cookies().set(
-      process.env.SESSION_COOKIE_ROLE_NAME!,
-      "",
-      lucia.createBlankSessionCookie().attributes,
-    );
-
+    await setCookie(process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME!, "", {
+      cookies,
+    });
     return {
       errors: "Unauthorized",
     };
@@ -227,11 +230,9 @@ export async function logout(): Promise<ActionResult> {
     sessionCookie.value,
     sessionCookie.attributes,
   );
-  cookies().set(
-    process.env.SESSION_COOKIE_ROLE_NAME!,
-    "",
-    sessionCookie.attributes,
-  );
+  await setCookie(process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME!, "", {
+    cookies,
+  });
 
   return redirect("/login");
 }
@@ -261,10 +262,10 @@ export const validateRequest = cache(
           sessionCookie.value,
           sessionCookie.attributes,
         );
-        cookies().set(
-          process.env.SESSION_COOKIE_ROLE_NAME!,
+        await setCookie(
+          process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME!,
           result.user.role,
-          sessionCookie.attributes,
+          { cookies },
         );
       }
       if (!result.session) {
@@ -275,11 +276,9 @@ export const validateRequest = cache(
           sessionCookie.value,
           sessionCookie.attributes,
         );
-        cookies().set(
-          process.env.SESSION_COOKIE_ROLE_NAME!,
-          "",
-          sessionCookie.attributes,
-        );
+        await setCookie(process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME!, "", {
+          cookies,
+        });
       }
     } catch {}
 

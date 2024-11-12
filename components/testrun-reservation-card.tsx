@@ -10,9 +10,17 @@ import {
   Dropdown,
   DropdownItem,
   DropdownMenu,
+  DropdownSection,
   DropdownTrigger,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
   Spacer,
+  useDisclosure,
 } from "@nextui-org/react";
+import { getCookie } from "cookies-next/client";
 import { tv } from "tailwind-variants";
 import { Icon } from "@iconify/react";
 
@@ -37,8 +45,20 @@ const infoText = tv({
 export default function TestrunReservationCard(
   props: TestrunReservationCardProps,
 ) {
+  const authRole = getCookie(
+    process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME || "auth_role",
+  );
+  const isAdmin = authRole === "admin";
+
   const [reservation, setReservation] =
     React.useState<TestrunReservation | null>(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const {
+    isOpen: isOpenErrorDialog,
+    onOpen: onOpenErrorDialog,
+    onOpenChange: onOpenChangeErrorDialog,
+  } = useDisclosure();
 
   React.useEffect(() => {
     getTestrunReservation(props.reservationId).then((reservation) => {
@@ -51,10 +71,16 @@ export default function TestrunReservationCard(
   }, [props.reservationId]);
 
   async function handleStatusUpdate(status: TestrunStatus) {
+    setIsSubmitting(true);
+
     const result = await updateTestrunStatus(props.reservationId, status);
+
+    setIsSubmitting(false);
 
     if (result.errors) {
       console.error(result.errors);
+      setErrorMessage(result.errors);
+      onOpenErrorDialog();
 
       return;
     }
@@ -65,7 +91,7 @@ export default function TestrunReservationCard(
 
   if (reservation) {
     if (
-      ["実施決定", "準備中", "実施中"].includes(reservation.status) &&
+      ["準備中", "実施中"].includes(reservation.status) &&
       reservation.fixed_at
     ) {
       updateTime =
@@ -85,9 +111,52 @@ export default function TestrunReservationCard(
       updateTime = "呼出予想: 未定";
     }
 
+    let changeStatusButton = null;
+
+    if (isAdmin) {
+      switch (reservation.status) {
+        case "順番待ち":
+          changeStatusButton = (
+            <Button
+              className="flex"
+              color="primary"
+              size="sm"
+              onPress={() => handleStatusUpdate("準備中")}
+            >
+              準備開始
+            </Button>
+          );
+          break;
+        case "準備中":
+          changeStatusButton = (
+            <Button
+              className="flex"
+              color="success"
+              size="sm"
+              onPress={() => handleStatusUpdate("実施中")}
+            >
+              開始
+            </Button>
+          );
+          break;
+        case "実施中":
+          changeStatusButton = (
+            <Button
+              className="flex"
+              color="danger"
+              size="sm"
+              onPress={() => handleStatusUpdate("終了")}
+            >
+              終了
+            </Button>
+          );
+          break;
+      }
+    }
+
     card = (
-      <Card className={cn("mt-2 w-full flex-col items-stretch", props.bgColor)}>
-        <CardHeader className="grid w-full max-w-full grid-cols-3 justify-center gap-4 px-6 pb-0 pt-6">
+      <Card className={cn("w-full flex-col items-stretch p-2", props.bgColor)}>
+        <CardHeader className="grid w-full max-w-full grid-cols-3 justify-center gap-4">
           <div className="flex-col items-start justify-start">
             <p className={infoText()}>
               {`受信時刻: ${reservation.reserved_at.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`}
@@ -107,68 +176,98 @@ export default function TestrunReservationCard(
             </p>
           </div>
           <div className="h-full w-full items-start justify-end">
-            <div className="flex items-center justify-end">
-              <Dropdown>
-                <DropdownTrigger>
-                  <Button isIconOnly radius="full" size="sm" variant="flat">
-                    <Icon
-                      className="flex text-end text-2xl"
-                      icon="solar:menu-dots-bold"
-                    />
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu>
-                  <DropdownItem
-                    key="cancel"
-                    color="danger"
-                    onPress={() => handleStatusUpdate("キャンセル")}
-                  >
-                    キャンセル
-                  </DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
-            </div>
+            {isAdmin ? (
+              <div className="flex items-center justify-end">
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button isIconOnly radius="full" size="sm" variant="flat">
+                      <Icon
+                        className="flex text-end text-2xl"
+                        icon="solar:menu-dots-bold"
+                      />
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu>
+                    <DropdownSection title="状態変更">
+                      <DropdownItem
+                        key="順番待ち"
+                        color="default"
+                        onPress={() => handleStatusUpdate("順番待ち")}
+                      >
+                        順番待ち
+                      </DropdownItem>
+                      <DropdownItem
+                        key="準備中"
+                        color="primary"
+                        onPress={() => handleStatusUpdate("準備中")}
+                      >
+                        準備中
+                      </DropdownItem>
+                      <DropdownItem
+                        key="実施中"
+                        color="success"
+                        onPress={() => handleStatusUpdate("実施中")}
+                      >
+                        実施中
+                      </DropdownItem>
+                      <DropdownItem
+                        key="終了"
+                        color="danger"
+                        onPress={() => handleStatusUpdate("終了")}
+                      >
+                        終了
+                      </DropdownItem>
+                      <DropdownItem
+                        key="キャンセル"
+                        color="danger"
+                        onPress={() => handleStatusUpdate("キャンセル")}
+                      >
+                        キャンセル
+                      </DropdownItem>
+                    </DropdownSection>
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
+            ) : null}
           </div>
         </CardHeader>
-        <Spacer y={2} />
-        <Divider />
-        <CardBody className="flex-row items-stretch justify-start gap-2">
-          <Button
-            className="flex"
-            color="primary"
-            size="sm"
-            onPress={() => handleStatusUpdate("実施決定")}
-          >
-            実施決定
-          </Button>
-          <Button
-            className="flex"
-            color="warning"
-            size="sm"
-            onPress={() => handleStatusUpdate("準備中")}
-          >
-            準備開始
-          </Button>
-          <Button
-            className="flex"
-            color="success"
-            size="sm"
-            onPress={() => handleStatusUpdate("実施中")}
-          >
-            開始
-          </Button>
-          <Button
-            className="flex"
-            color="default"
-            size="sm"
-            onPress={() => handleStatusUpdate("終了")}
-          >
-            終了
-          </Button>
-        </CardBody>
+        {isAdmin && changeStatusButton ? (
+          <>
+            <Spacer y={2} />
+            <Divider />
+            <CardBody className="flex-row items-stretch justify-center gap-2">
+              {changeStatusButton}
+            </CardBody>
+          </>
+        ) : null}
       </Card>
     );
   }
 
-  return card;
+  const errorModal = (
+    <Modal isOpen={isOpenErrorDialog} onOpenChange={onOpenChangeErrorDialog}>
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex flex-col gap-1">エラー</ModalHeader>
+            <ModalBody>
+              <p>{errorMessage}</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="danger" variant="light" onPress={onClose}>
+                閉じる
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
+  );
+
+  return (
+    <>
+      {card}
+      {errorModal}
+    </>
+  );
 }

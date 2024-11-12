@@ -7,7 +7,7 @@ export default async function middleware(request: NextRequest) {
     process.env.LUCIA_SESSION_COOKIE_NAME ?? "auth_session",
   )?.value;
   const currentUserRole = request.cookies.get(
-    process.env.SESSION_COOKIE_ROLE_NAME ?? "auth_role",
+    process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME ?? "auth_role",
   )?.value;
 
   if (!currentUser) {

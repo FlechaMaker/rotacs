@@ -4,6 +4,8 @@ import "client-only";
 
 import React from "react";
 import {
+  Accordion,
+  AccordionItem,
   button as buttonStyle,
   Divider,
   Link,
@@ -53,7 +55,6 @@ export default function Testrun() {
     "終了",
     "実施中",
     "準備中",
-    "実施決定",
     "順番待ち",
     "キャンセル",
   ];
@@ -66,29 +67,42 @@ export default function Testrun() {
     schedule === undefined ? (
       <Spinner className="flex py-4" label="読み込み中..." />
     ) : (
-      statusOrder.map((status) => (
-        <div key={status} className="flex-col items-stretch">
-          <h3 className="mb-4 mt-8 text-center text-xl font-bold text-default-700 md:text-3xl">
-            {status}
-          </h3>
-          <div key={`${status}-items`} className="my-4 grid grid-cols-2 gap-8">
-            {TestrunSides.map((side) => (
-              <div
-                key={side}
-                className="grid grid-cols-1 place-content-start gap-4"
-              >
-                {schedule.get(side, status).map((r) => (
-                  <TestrunReservationCard
-                    key={r}
-                    bgColor={getBgColor(side, status)}
-                    reservationId={r}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      ))
+      <Accordion
+        selectionMode="multiple"
+        defaultExpandedKeys={["実施中", "準備中", "順番待ち"]}
+      >
+        {statusOrder.map((status) => (
+          <AccordionItem
+            key={status}
+            title={
+              <span className="block w-full text-center text-xl font-bold text-default-700">
+                {status}
+              </span>
+            }
+            aria-label={status}
+          >
+            <div
+              key={`${status}-items`}
+              className="my-4 grid grid-cols-2 gap-8"
+            >
+              {TestrunSides.map((side) => (
+                <div
+                  key={side}
+                  className="grid grid-cols-1 place-content-start gap-4"
+                >
+                  {schedule.get(side, status).map((r) => (
+                    <TestrunReservationCard
+                      key={r}
+                      bgColor={getBgColor(side, status)}
+                      reservationId={r}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </AccordionItem>
+        ))}
+      </Accordion>
     );
 
   return (
