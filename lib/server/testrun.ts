@@ -61,6 +61,9 @@ export async function createTestrun(
   const { user: currentUser } = await validateRequest();
 
   if (!currentUser) {
+    console.error("認証情報が不正です．ログインし直してください．");
+    console.trace("認証情報が不正です．ログインし直してください．");
+
     return { errors: "認証情報が不正です．ログインしなおしてください" };
   }
 
@@ -84,6 +87,9 @@ export async function createTestrun(
         .executeTakeFirst();
 
       if (!_booker) {
+        console.error("指定されたユーザが存在しません");
+        console.trace("指定されたユーザが存在しません");
+
         return { errors: "指定されたユーザが存在しません" };
       }
 
@@ -93,6 +99,9 @@ export async function createTestrun(
     }
   } else {
     if (bookerId && bookerId !== currentUser.id) {
+      console.error("他のユーザの予約を作成することはできません");
+      console.trace("他のユーザの予約を作成することはできません");
+
       return { errors: "他のユーザの予約を作成することはできません" };
     }
 
@@ -101,10 +110,14 @@ export async function createTestrun(
 
   try {
     const firestore = await getFirestore();
+    const retryCount = 0;
 
-    console.log(`[${booker.display_name}] トランザクション開始前`);
     const result = await firestore.runTransaction(async (transaction) => {
-      console.log(`[${booker.display_name}] トランザクション開始`);
+      if (retryCount > 0) {
+        console.log(
+          `[${booker.display_name}] createTestrun retry: ${retryCount}`,
+        );
+      }
 
       const collection = firestore
         .collection(TESTRUN_COLLECTION)
@@ -121,11 +134,10 @@ export async function createTestrun(
         .where("status", "in", existsStatus);
       const incompleteSnapshot = await transaction.get(incompleteRef);
 
-      console.log(
-        `[${booker.display_name}] incompleteSnapshot.size: ${incompleteSnapshot.size}`,
-      );
-
       if (!incompleteSnapshot.empty) {
+        console.error("既に予約が存在します");
+        console.trace("既に予約が存在します");
+
         return { errors: "既に予約が存在します" };
       }
 
@@ -135,10 +147,6 @@ export async function createTestrun(
       const finishedSnapshot = await transaction.get(finishedRef);
       const reservationCount = finishedSnapshot.size + 1;
 
-      console.log(
-        `[${booker.display_name}] reservationCount: ${reservationCount}`,
-      );
-
       const testrun = new TestrunReservation({
         user_id: booker.id,
         user_display_name: booker.display_name,
@@ -147,21 +155,21 @@ export async function createTestrun(
         side,
       });
 
-      console.log(
-        `[${booker.display_name}] testrun: ${JSON.stringify(testrun)}`,
-      );
-
       const reservationRef = collection.doc(testrun.id);
 
       transaction.set(reservationRef, testrun);
     });
 
-    console.log(`[${booker.display_name}] トランザクション終了`);
-
     if (result?.errors) {
+      console.error(result.errors);
+      console.trace(result.errors);
+
       return result;
     }
   } catch (e: any) {
+    console.dir(e);
+    console.trace(e.toString());
+
     return { errors: e.toString() };
   }
 
