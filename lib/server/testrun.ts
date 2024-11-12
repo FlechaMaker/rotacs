@@ -205,7 +205,13 @@ export async function updateTestrunStatus(
   }
 
   try {
-    Promise.all([sendCall(0, "順番待ち"), sendCall(1, "順番待ち")]);
+    Promise.all([
+      sendCall(0, "順番待ち"),
+      sendCall(0, "実施決定"),
+      sendCall(1, "実施決定"),
+      sendCall(2, "実施決定"),
+      sendCall(3, "実施決定"),
+    ]);
   } catch (e: any) {
     console.trace(e.toString());
   }
@@ -245,14 +251,16 @@ async function sendCall(at: number, status: TestrunStatus) {
 
       let target = await transaction.get(targetRef);
 
-      if (at === 1 && target.data()?.pre_call_sent) {
+      if (status === "順番待ち" && at === 0 && target.data()?.pre_call_sent) {
         return null;
-      } else if (at === 0 && target.data()?.call_sent) {
+      } else if (status === "実施決定" && target.data()?.call_sent) {
         return null;
       }
 
       const update: Partial<TestrunReservation> =
-        at === 1 ? { pre_call_sent: true } : { call_sent: true };
+        status === "順番待ち" && at === 0
+          ? { pre_call_sent: true }
+          : { call_sent: true };
 
       transaction.update(targetRef, update);
 
