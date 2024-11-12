@@ -20,11 +20,11 @@ const initialState: ActionResult = {
 export default function NewTestrun() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  // const [formState, formAction] = useFormState(createTestrun, initialState);
-  const [formState, formAction] = useFormState(
-    testConcurrentCreateTestrun,
-    initialState,
-  );
+  const [formState, formAction] = useFormState(createTestrun, initialState);
+  // const [formState, formAction] = useFormState(
+  // testConcurrentCreateTestrun,
+  // initialState,
+  // );
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
