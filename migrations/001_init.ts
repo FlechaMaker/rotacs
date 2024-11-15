@@ -10,6 +10,8 @@ export async function up(kysely: Kysely<any>): Promise<void> {
     .addColumn("password_hash", "varchar", (column) => column.notNull())
     .addColumn("display_name", "varchar", (column) => column.notNull())
     .addColumn("role", "varchar", (column) => column.notNull())
+    .addColumn("pit_side", "varchar", (column) => column.notNull())
+    .addColumn("pit_number", "integer", (column) => column.notNull())
     .execute();
 
   const adminEntry = await createUserInfo(
@@ -17,6 +19,8 @@ export async function up(kysely: Kysely<any>): Promise<void> {
     process.env.ROTACS_ADMIN_PASSWORD!,
     "Admin",
     "admin",
+    "東",
+    0,
   );
 
   if ("errors" in adminEntry) {
@@ -60,9 +64,12 @@ interface UserTable {
   password_hash: string;
   display_name: string;
   role: UserRole;
+  pit_side: CheckSide;
+  pit_number: number;
 }
 
 type UserRole = "admin" | "user";
+type CheckSide = "東" | "西";
 
 interface ActionResult {
   errors: string;
@@ -73,6 +80,8 @@ async function createUserInfo(
   password: string,
   display_name = "",
   role: UserRole = "user",
+  pit_side: CheckSide,
+  pit_number: number,
 ): Promise<UserTable | ActionResult> {
   // username must be between 4 ~ 31 characters, and only consists of lowercase letters, 0-9, -, and _
   // keep in mind some database (e.g. mysql) are case insensitive
@@ -112,5 +121,7 @@ async function createUserInfo(
     password_hash: passwordHash,
     display_name: display_name,
     role: role,
+    pit_side: pit_side,
+    pit_number: pit_number,
   };
 }

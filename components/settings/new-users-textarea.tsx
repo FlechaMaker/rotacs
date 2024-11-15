@@ -36,7 +36,8 @@ const NewUsersTextarea: React.FC = (props: NewUsersTextareaProps) => {
     >
       <CardBody>
         <p className="text-xs font-normal text-default-400">
-          CSVの形式 (1行1ユーザー): username,password,display_name,role
+          CSVの形式 (1行1ユーザー):
+          username,password,display_name,role,pit_side,pit_number
         </p>
         <p className="text-xs font-normal text-default-400">
           username: アルファベット小文字, 数字, _, -で4~30文字
@@ -50,6 +51,10 @@ const NewUsersTextarea: React.FC = (props: NewUsersTextareaProps) => {
         <p className="text-xs font-normal text-default-400">
           role: admin または user
         </p>
+        <p className="text-xs font-normal text-default-400">
+          pit_side: 西または東
+        </p>
+        <p className="text-xs font-normal text-default-400">pit_number: 番号</p>
         <Spacer y={2} />
         <form action={createUsersDispatch} onSubmit={onSubmit}>
           <Textarea
@@ -62,7 +67,7 @@ const NewUsersTextarea: React.FC = (props: NewUsersTextareaProps) => {
             }
             label="追加するユーザーの情報のCSV"
             name="users"
-            placeholder="username,password,display_name,role"
+            placeholder="username,password,display_name,role,pit_side,pit_number"
           />
           <Button color="primary" isLoading={isLoading} type="submit">
             ユーザーを追加

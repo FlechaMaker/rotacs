@@ -14,22 +14,30 @@ import { db } from "@/lib/server/db";
 export async function validateFormData<SideType extends string>(
   formData: FormData,
   currentUser: User,
-): Promise<{ side: SideType; booker: User }> {
+): Promise<{
+  side: SideType | undefined;
+  booker: User;
+  collectionId: string | undefined;
+}> {
   // formDataの検証
-  if (!formData.has("side")) {
-    throw Error("エリアが指定されていません");
-  }
   const sideValue = formData.get("side");
 
-  if (!sideValue) {
-    throw new Error("エリアの情報が不正です");
+  let side: SideType | undefined = undefined;
+
+  if (sideValue) {
+    side = sideValue.toString() as SideType;
   }
-  const side = sideValue.toString() as SideType;
 
   let bookerId: string | undefined = undefined;
 
   if (formData.has("bookerId")) {
     bookerId = formData.get("bookerId")?.toString();
+  }
+
+  let collectionId: string | undefined = undefined;
+
+  if (formData.has("collectionId")) {
+    collectionId = formData.get("collectionId")?.toString();
   }
 
   // Adminは他のユーザの予約を作成できる
@@ -60,7 +68,7 @@ export async function validateFormData<SideType extends string>(
     }
   }
 
-  return { side, booker };
+  return { side, booker, collectionId };
 }
 
 export function reservationDataConverter<

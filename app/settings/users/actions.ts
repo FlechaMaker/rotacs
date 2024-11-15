@@ -9,6 +9,7 @@ import { db } from "@/lib/server/db";
 import { UserTable, UserRole } from "@/types/auth";
 import { ActionResult } from "@/types/actions";
 import { createUserInfo } from "@/lib/server/auth";
+import { CheckSide } from "@/types/check";
 
 export async function createUsers(
   state: ActionResult,
@@ -25,14 +26,17 @@ export async function createUsers(
 
   try {
     users = userRecords.map((record) => {
-      const [username, password, display_name, role] = record;
+      const [username, password, display_name, role, pit_side, pit_number] =
+        record;
 
       if (
         !username ||
         !password ||
         !display_name ||
         !role ||
-        (role !== "admin" && role !== "user")
+        (role !== "admin" && role !== "user") ||
+        !pit_side ||
+        !pit_number
       ) {
         throw new Error("Invalid user record");
       }
@@ -42,6 +46,8 @@ export async function createUsers(
         password,
         display_name,
         role: role as UserRole,
+        pit_side: pit_side as CheckSide,
+        pit_number: parseInt(pit_number),
       };
     });
   } catch (error) {
@@ -63,6 +69,8 @@ export async function createUsers(
       user.password,
       user.display_name,
       user.role,
+      user.pit_side,
+      user.pit_number,
     );
   });
 

@@ -33,6 +33,8 @@ interface UserSettingsTableProps {
 const columns = [
   { name: "名前", uid: "display_name", sortable: true },
   { name: "ロール", uid: "role", sortable: true },
+  { name: "ピットエリア", uid: "pit_side", sortable: true },
+  { name: "ピット番号", uid: "pit_number", sortable: true },
   { name: "", uid: "actions", sortable: false },
 ];
 
@@ -97,7 +99,7 @@ export default function UserSettingsTable(props: UserSettingsTableProps) {
               size="sm"
               variant="flat"
             >
-              {capitalize(cellValue)}
+              {capitalize(cellValue.toString())}
             </Chip>
           );
         case "actions":

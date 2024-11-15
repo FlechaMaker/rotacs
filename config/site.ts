@@ -21,6 +21,22 @@ export const routes: Route = {
       href: "/testrun/new",
     },
   },
+  check1: {
+    label: "計量計測1",
+    href: "/check1",
+    new: {
+      label: "計量計測1予約",
+      href: "/check1/new",
+    },
+  },
+  check2: {
+    label: "計量計測2",
+    href: "/check2",
+    new: {
+      label: "計量計測2予約",
+      href: "/check2/new",
+    },
+  },
   settings: {
     label: "設定",
     href: "/settings",
@@ -46,7 +62,13 @@ export const routes: Route = {
 export const siteConfig = {
   name: "RoTACS",
   description: "Robocon Testrun And Check Scheduler",
-  tabItems: [routes.home, routes.testrun, routes.settings],
+  tabItems: [
+    routes.home,
+    routes.testrun,
+    routes.check1,
+    routes.check2,
+    routes.settings,
+  ],
   navMenuItemsSignedOut: [routes.home, routes.login],
   navMenuItemsSignedIn: [
     routes.home,

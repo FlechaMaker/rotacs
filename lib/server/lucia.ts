@@ -21,6 +21,8 @@ export const lucia = new Lucia(adapter, {
       username: attributes.username,
       display_name: attributes.display_name,
       role: attributes.role,
+      pit_side: attributes.pit_side,
+      pit_number: attributes.pit_number,
     };
   },
 });

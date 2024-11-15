@@ -14,6 +14,7 @@ import { lucia } from "@/lib/server/lucia";
 import { ActionResult } from "@/types/actions";
 import { UserTable } from "@/types/auth";
 import { DatabaseUserAttributes, UserRole } from "@/types/auth";
+import { CheckSide } from "@/types/check";
 
 declare module "lucia" {
   interface Register {
@@ -26,7 +27,9 @@ export async function createUserInfo(
   username: string,
   password: string,
   display_name: string,
-  role: "admin" | "user",
+  role: UserRole,
+  pit_side: CheckSide,
+  pit_number: number,
 ): Promise<UserTable | ActionResult> {
   // username must be between 4 ~ 31 characters, and only consists of lowercase letters, 0-9, -, and _
   // keep in mind some database (e.g. mysql) are case insensitive
@@ -66,67 +69,69 @@ export async function createUserInfo(
     password_hash: passwordHash,
     display_name: display_name,
     role: role,
+    pit_side: pit_side,
+    pit_number: pit_number,
   };
 }
 
-export async function signup(formData: FormData): Promise<ActionResult> {
-  let _userEntry: UserTable | ActionResult;
+// export async function signup(formData: FormData): Promise<ActionResult> {
+//   let _userEntry: UserTable | ActionResult;
 
-  try {
-    const username = formData.get("username")?.toString()!;
-    const password = formData.get("password")?.toString()!;
-    const display_name = formData.get("display_name")?.toString() ?? "";
-    const role = (formData.get("role")?.toString() as UserRole) ?? "user";
+//   try {
+//     const username = formData.get("username")?.toString()!;
+//     const password = formData.get("password")?.toString()!;
+//     const display_name = formData.get("display_name")?.toString() ?? "";
+//     const role = (formData.get("role")?.toString() as UserRole) ?? "user";
 
-    _userEntry = await createUserInfo(username, password, display_name, role);
-  } catch (error) {
-    return {
-      errors: `Create user failed. Invalid form data. (${error})`,
-    };
-  }
+//     _userEntry = await createUserInfo(username, password, display_name, role);
+//   } catch (error) {
+//     return {
+//       errors: `Create user failed. Invalid form data. (${error})`,
+//     };
+//   }
 
-  if ("errors" in _userEntry) {
-    return _userEntry as ActionResult;
-  }
+//   if ("errors" in _userEntry) {
+//     return _userEntry as ActionResult;
+//   }
 
-  const userEntry = _userEntry as UserTable;
+//   const userEntry = _userEntry as UserTable;
 
-  // TODO: check if username is already used
-  const validUserId = await db
-    .insertInto("user")
-    .values(userEntry)
-    .returning("id")
-    .executeTakeFirstOrThrow()
-    .then((value) => value.id);
+//   // TODO: check if username is already used
+//   const validUserId = await db
+//     .insertInto("user")
+//     .values(userEntry)
+//     .returning("id")
+//     .executeTakeFirstOrThrow()
+//     .then((value) => value.id);
 
-  if (!validUserId) {
-    return {
-      errors: "Create user failed. No user id returned.",
-    };
-  }
+//   if (!validUserId) {
+//     return {
+//       errors: "Create user failed. No user id returned.",
+//     };
+//   }
 
-  const session = await lucia.createSession(validUserId, {});
-  const sessionCookie = lucia.createSessionCookie(session.id);
+//   const session = await lucia.createSession(validUserId, {});
+//   const sessionCookie = lucia.createSessionCookie(session.id);
 
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes,
-  );
-  await setCookie(
-    process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME!,
-    userEntry.role,
-    { cookies },
-  );
+//   cookies().set(
+//     sessionCookie.name,
+//     sessionCookie.value,
+//     sessionCookie.attributes,
+//   );
+//   await setCookie(
+//     process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME!,
+//     userEntry.role,
+//     { cookies },
+//   );
 
-  // cookies().set(
-  //   process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME!,
-  //   userEntry.role,
-  //   sessionCookie.attributes,
-  // );
+//   // cookies().set(
+//   //   process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME!,
+//   //   userEntry.role,
+//   //   sessionCookie.attributes,
+//   // );
 
-  return redirect("/");
-}
+//   return redirect("/");
+// }
 
 export async function login(
   state: ActionResult,
@@ -216,6 +221,7 @@ export async function logout(): Promise<ActionResult> {
     await setCookie(process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME!, "", {
       cookies,
     });
+
     return {
       errors: "Unauthorized",
     };
