@@ -21,8 +21,7 @@ import {
   validateFormData,
 } from "@/lib/server/reservation";
 import { db } from "@/lib/server/db";
-import { doc } from "firebase/firestore";
-import { sendLineNotifyMessage } from "./line-notify";
+import { sendLineNotifyMessage } from "@/lib/server/line-notify";
 
 export async function createTestrun(
   state: ActionResult,
@@ -299,12 +298,10 @@ async function sendCall(at: number, status: TestrunStatus) {
 
       if (status === "実施決定") {
         // 呼び出し通知
-        message = `から ${receiver.display_name} さんへお知らせ
-[${target.user_display_name}高専 ${target.reservation_count}回目] テストランの順番になりました．テストラン待機エリアに移動してください．`;
+        message = `[${target.user_display_name}高専 ${target.reservation_count}回目 ${target.side}] テストランの順番になりました．「${target.side}」テストラン待機エリアに移動してください．`;
       } else if (status === "順番待ち" && at === 0) {
         // 事前通知
-        message = `から ${receiver.display_name} さんへお知らせ
-[${target.user_display_name}高専 ${target.reservation_count}回目] テストランが近づいています．呼び出された時に移動できるよう準備をお願いします．
+        message = `[${target.user_display_name}高専 ${target.reservation_count}回目 ${target.side}] テストランが近づいています．呼び出された時に移動できるよう準備をお願いします．
 他チームの予約状況により順番が前後することもあるため，テストラン一覧を確認してください．
 https://rotacs.yuchi.jp/testrun`;
       }

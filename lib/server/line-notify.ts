@@ -230,6 +230,9 @@ export async function sendLineNotifyMessage(
   message: LineNotifyMessage,
   user: User,
 ) {
+  message.message = `から ${user.display_name} さんへお知らせ
+${message.message}`;
+
   const tokenEntries = await db
     .selectFrom("line_notify_token")
     .select("token")
