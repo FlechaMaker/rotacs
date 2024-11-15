@@ -285,3 +285,9 @@ export const validateRequest = cache(
     return result;
   },
 );
+
+export async function getAllUsersJson() {
+  const users = await db.selectFrom("user").selectAll().execute();
+
+  return JSON.stringify(users);
+}

@@ -1,13 +1,21 @@
+import "server-cli-only";
+
 import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
   Timestamp,
   WithFieldValue,
 } from "firebase-admin/firestore";
+import { User } from "lucia";
 
 import { Reservation } from "@/types/reservation";
+import { db } from "@/lib/server/db";
 
-export function validateFormData<SideType extends string>(formData: FormData) {
+export async function validateFormData<SideType extends string>(
+  formData: FormData,
+  currentUser: User,
+): Promise<{ side: SideType; booker: User }> {
+  // formDataの検証
   if (!formData.has("side")) {
     throw Error("エリアが指定されていません");
   }
@@ -24,7 +32,35 @@ export function validateFormData<SideType extends string>(formData: FormData) {
     bookerId = formData.get("bookerId")?.toString();
   }
 
-  return { side, bookerId };
+  // Adminは他のユーザの予約を作成できる
+  // 指定されたユーザーの予約を作成する権限があるかを検証
+  let booker: User = currentUser;
+
+  if (currentUser.role === "admin") {
+    if (bookerId) {
+      const _booker = await db
+        .selectFrom("user")
+        .where("id", "=", bookerId)
+        .selectAll()
+        .executeTakeFirst();
+
+      if (!_booker) {
+        console.trace("指定されたユーザが存在しません");
+
+        throw Error("指定されたユーザが存在しません");
+      }
+
+      booker = _booker;
+    }
+  } else {
+    if (bookerId && bookerId !== currentUser.id) {
+      console.trace("他のユーザの予約を作成することはできません");
+
+      throw Error("他のユーザの予約を作成することはできません");
+    }
+  }
+
+  return { side, booker };
 }
 
 export function reservationDataConverter<

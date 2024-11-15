@@ -36,43 +36,17 @@ export async function createTestrun(
   }
 
   let side: TestrunSide;
-  let bookerId: string | undefined;
   let booker: User;
 
   try {
-    ({ side, bookerId } = validateFormData<TestrunSide>(formData));
+    ({ side, booker } = await validateFormData<TestrunSide>(
+      formData,
+      currentUser,
+    ));
   } catch (e: any) {
     return { errors: e.toString() };
   }
 
-  // Adminは他のユーザの予約を作成できる
-  if (currentUser.role === "admin") {
-    if (bookerId) {
-      const _booker = await db
-        .selectFrom("user")
-        .where("id", "=", bookerId)
-        .selectAll()
-        .executeTakeFirst();
-
-      if (!_booker) {
-        console.trace("指定されたユーザが存在しません");
-
-        return { errors: "指定されたユーザが存在しません" };
-      }
-
-      booker = _booker;
-    } else {
-      booker = currentUser;
-    }
-  } else {
-    if (bookerId && bookerId !== currentUser.id) {
-      console.trace("他のユーザの予約を作成することはできません");
-
-      return { errors: "他のユーザの予約を作成することはできません" };
-    }
-
-    booker = currentUser;
-  }
 
   try {
     const firestore = await getFirestore();

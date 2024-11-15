@@ -20,7 +20,6 @@ import {
   Spacer,
   useDisclosure,
 } from "@nextui-org/react";
-import { getCookie } from "cookies-next/client";
 import { tv } from "tailwind-variants";
 import { Icon } from "@iconify/react";
 
@@ -35,6 +34,7 @@ import {
   onTestrunReservationChange,
 } from "@/lib/client/testrun";
 import { updateTestrunStatus } from "@/lib/server/testrun";
+import { isAdmin } from "@/lib/client/auth";
 
 interface TestrunReservationCardProps {
   className?: string;
@@ -49,11 +49,6 @@ const infoText = tv({
 export default function TestrunReservationCard(
   props: TestrunReservationCardProps,
 ) {
-  const authRole = getCookie(
-    process.env.NEXT_PUBLIC_SESSION_COOKIE_ROLE_NAME || "auth_role",
-  );
-  const isAdmin = authRole === "admin";
-
   const [reservation, setReservation] =
     React.useState<TestrunReservation | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -117,7 +112,7 @@ export default function TestrunReservationCard(
 
     let changeStatusButton = null;
 
-    if (isAdmin) {
+    if (isAdmin()) {
       switch (reservation.status) {
         case "順番待ち":
           changeStatusButton = (
@@ -196,7 +191,7 @@ export default function TestrunReservationCard(
             </p>
           </div>
           <div className="h-full w-full items-start justify-end">
-            {isAdmin ? (
+            {isAdmin() ? (
               <div className="flex items-center justify-end">
                 <Dropdown>
                   <DropdownTrigger>
@@ -260,7 +255,7 @@ export default function TestrunReservationCard(
             ) : null}
           </div>
         </CardHeader>
-        {isAdmin && changeStatusButton ? (
+        {isAdmin() && changeStatusButton ? (
           <>
             <Spacer y={2} />
             <Divider />
