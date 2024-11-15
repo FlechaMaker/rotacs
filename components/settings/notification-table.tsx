@@ -41,6 +41,7 @@ export default function NotificationTable(props: NotificationTableProps) {
   const [isTableLoading, setIsTableLoading] = React.useState(true);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [isLoggingIn, setIsLoggingIn] = React.useState(false);
+  const [descriptionValue, setDescriptionValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
     new Set([]),
   );
@@ -66,10 +67,11 @@ export default function NotificationTable(props: NotificationTableProps) {
           return item.description;
         case "issued_at":
           const date = new Date(item.issued_at ?? 0);
+          console.log(item.issued_at);
 
-          return date.toLocaleString("ja-JP", {
-            timeZone: "Asia/Tokyo",
-          });
+          const text = item.token ? date.toLocaleString("ja-JP") : "認証未完了";
+
+          return text;
         case "actions":
           return (
             <form
@@ -116,12 +118,13 @@ export default function NotificationTable(props: NotificationTableProps) {
 
   const topContent = React.useMemo(() => {
     return (
-      <div className="flex w-full justify-between gap-3">
-        <div className="flex">
+      <div className="flex w-full grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="w-full">
           <form action={startLineLogin} onSubmit={handleLineLogin}>
             <Button
               className="mb-2 w-full"
               color="success"
+              isDisabled={isLoggingIn || descriptionValue === ""}
               isLoading={isLoggingIn}
               size="md"
               type="submit"
@@ -131,13 +134,14 @@ export default function NotificationTable(props: NotificationTableProps) {
             <Input
               isRequired
               className="my-2 w-full"
-              label="送信先名"
+              label="LINEの送信先名"
               name="description"
               placeholder="グループライン"
+              onValueChange={setDescriptionValue}
             />
           </form>
         </div>
-        <div className="flex">
+        <div className="w-full">
           <form action={handleTestMessageSend}>
             <Button
               className="mb-2 w-full"
@@ -150,7 +154,7 @@ export default function NotificationTable(props: NotificationTableProps) {
             </Button>
           </form>
         </div>
-        <div className="flex">
+        <div className="w-full">
           <form action={revokeNotifyToken} onSubmit={handleDeleteNotifications}>
             <Button
               color="danger"
