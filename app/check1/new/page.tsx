@@ -90,6 +90,9 @@ export default function NewCheck() {
     <div className="flex h-full w-full items-center justify-center">
       <div className="flex w-full max-w-sm flex-col gap-4 rounded-large bg-content1 px-8 pb-10 pt-6 shadow-small">
         <p className="pb-2 text-xl font-medium">新規計量計測1予約（土曜日）</p>
+        <p className="text-sm font-bold">
+          予約開始の10:30以前の予約は全て削除します．10:30以降に予約を送信してください．
+        </p>
         <p className="text-sm text-default-500">
           計量計測エリアは東西に1つずつあります．自分のピットに近い方に自動で割り振られます．
         </p>

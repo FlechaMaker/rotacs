@@ -112,7 +112,7 @@ export default function Testrun() {
       <div className="flex-col items-stretch">
         <h1 className={pageTitle()}>テストラン</h1>
         <h2 className={pageSubtitle()}>
-          表示順の上から下に向かってテストランを実施していきます．
+          表示順の上から下に向かってテストランを実施していきます．現在表示されている予約はサンプルです．予約開始時刻に削除します．
         </h2>
         <div className="my-4 flex items-stretch justify-start">
           <Link

@@ -95,6 +95,9 @@ export default function NewTestrun() {
           className="flex flex-col gap-3"
           onSubmit={handleSubmit}
         >
+          <p className="text-sm font-bold">
+            予約開始の11時以前の予約は全て削除します．11時以降に予約してください．
+          </p>
           <RadioGroup
             label="フィールドの色を選択してください"
             name="side"

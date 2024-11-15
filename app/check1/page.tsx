@@ -112,7 +112,7 @@ export default function Check() {
       <div className="flex-col items-stretch">
         <h1 className={pageTitle()}>計量計測1（土曜日）</h1>
         <h2 className={pageSubtitle()}>
-          表示順の上から下に向かって計量計測を実施していきます．
+          表示順の上から下に向かって計量計測を実施していきます．現在表示されている予約はサンプルです．予約開始時刻に削除します．
         </h2>
         <div className="my-4 flex items-stretch justify-start">
           <Link
