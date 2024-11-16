@@ -6,7 +6,10 @@ import {
   getDoc,
   getDocs,
   onSnapshot,
+  orderBy,
+  query,
   QuerySnapshot,
+  where,
 } from "firebase/firestore";
 
 import {
@@ -17,6 +20,7 @@ import {
 } from "@/types/check";
 import { firestore } from "@/lib/firebase/clientApp";
 import { reservationDataConverter } from "@/lib/client/reservation";
+import { TESTRUN_COLLECTION } from "@/types/testrun";
 
 export async function getCheckReservation(
   id: string,
@@ -48,6 +52,45 @@ export async function getCheckSchedule(
   let schedule = CheckSchedule.fromUnsorted(reservations);
 
   return schedule;
+}
+
+export async function getCheckStatus(
+  userDisplayName: string,
+  collectionId: string,
+) {
+  const collectionRef = collection(firestore, collectionId).withConverter(
+    checkDataConverter(),
+  );
+  const q = query(
+    collectionRef,
+    where("user_display_name", "==", userDisplayName),
+  );
+
+  let snapshot = await getDocs(q);
+
+  // sort snapshot
+  snapshot.docs.sort((a, b) => {
+    return b.data().reserved_at.getTime() - a.data().reserved_at.getTime();
+  });
+
+  let latestStatus: CheckStatus | "未予約" = "未予約";
+
+  snapshot.docs.forEach((doc) => {
+    const check = doc.data();
+
+    if (check.status === "合格") {
+      latestStatus = "合格";
+    } else if (latestStatus !== "合格" && check.status === "再検査") {
+      latestStatus = "再検査";
+    } else if (
+      !["合格", "再検査"].includes(latestStatus) &&
+      ["順番待ち", "実施決定", "準備中", "実施中"].includes(check.status)
+    ) {
+      latestStatus = check.status;
+    }
+  });
+
+  return latestStatus;
 }
 
 export function onCheckReservationChange(

@@ -6,7 +6,10 @@ import {
   getDoc,
   getDocs,
   onSnapshot,
+  orderBy,
+  query,
   QuerySnapshot,
+  where,
 } from "firebase/firestore";
 
 import { reservationDataConverter } from "@/lib/client/reservation";
@@ -48,6 +51,40 @@ export async function getTestrunSchedule(): Promise<TestrunSchedule> {
   let schedule = TestrunSchedule.fromUnsorted(reservations);
 
   return schedule;
+}
+
+export async function getTestrunStatus(userDisplayName: string, count: number) {
+  const testrunRef = collection(firestore, TESTRUN_COLLECTION).withConverter(
+    testrunDataConverter(),
+  );
+  const q = query(
+    testrunRef,
+    where("user_display_name", "==", userDisplayName),
+    where("reservation_count", "==", count),
+  );
+
+  const snapshot = await getDocs(q);
+
+  // sort snapshot
+  snapshot.docs.sort((a, b) => {
+    return b.data().reserved_at.getTime() - a.data().reserved_at.getTime();
+  });
+
+  // console.log(snapshot.docs);
+
+  let latestStatus: TestrunStatus | "未予約" = "未予約";
+
+  snapshot.docs.forEach((doc) => {
+    const data = doc.data();
+
+    if (data.status === "終了") {
+      latestStatus = "終了";
+    } else if (latestStatus !== "終了" && data.status) {
+      latestStatus = data.status;
+    }
+  });
+
+  return latestStatus;
 }
 
 export function onTestrunReservationChange(
