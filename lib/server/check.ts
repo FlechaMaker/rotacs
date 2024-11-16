@@ -205,8 +205,39 @@ export async function updateCheckStatus(
   return {};
 }
 
+export async function updateCheckResults(
+  state: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  const { user } = await validateRequest();
+
+  if (!user || user.role !== "admin") {
+    return { errors: "認証情報が不正です．ログインし直してください．" };
+  }
+
+  const id = formData.get("id")!.toString();
+  const collectionId = formData.get("collectionId")!.toString();
+
+  const update: Partial<CheckReservation> = {
+    status: formData.get("status")?.toString() as CheckStatus,
+    startSize: formData.has("startSize"),
+    r1ExpandSize: formData.has("r1ExpandSize"),
+    totalWeight: formData.has("totalWeight"),
+    powerVoltage: formData.has("powerVoltage"),
+    emergencyStop: formData.has("emergencyStop"),
+    memo: formData.get("memo")?.toString() ?? "",
+    recheckItems: formData.get("recheckItems")?.toString() ?? "",
+  };
+
+  const firestore = await getFirestore();
+
+  await firestore.collection(collectionId).doc(id).update(update);
+
+  return {};
+}
+
 function checkDataConverter(): FirestoreDataConverter<CheckReservation> {
-  return reservationDataConverter<CheckStatus, CheckSide>();
+  return reservationDataConverter<CheckStatus, CheckSide, CheckReservation>();
 }
 
 async function sendCall(at: number, status: CheckStatus, collectionId: string) {

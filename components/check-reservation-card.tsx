@@ -6,6 +6,7 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Checkbox,
   Divider,
   Dropdown,
   DropdownItem,
@@ -17,11 +18,21 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Radio,
+  RadioGroup,
   Spacer,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+  Textarea,
   useDisclosure,
 } from "@nextui-org/react";
 import { tv } from "tailwind-variants";
 import { Icon } from "@iconify/react";
+import { useFormState } from "react-dom";
 
 import { cn } from "@/lib/cn";
 import { CheckReservation, CheckStatus, CheckStatuses } from "@/types/check";
@@ -29,7 +40,7 @@ import {
   getCheckReservation,
   onCheckReservationChange,
 } from "@/lib/client/check";
-import { updateCheckStatus } from "@/lib/server/check";
+import { updateCheckResults, updateCheckStatus } from "@/lib/server/check";
 import { isAdmin } from "@/lib/client/auth";
 
 interface CheckReservationCardProps {
@@ -43,17 +54,33 @@ const infoText = tv({
   base: "text-xs block font-semibold text-default-500",
 });
 
+const checkResultInitialState = {
+  errors: "",
+};
+
 export default function CheckReservationCard(props: CheckReservationCardProps) {
   const [reservation, setReservation] = React.useState<CheckReservation | null>(
     null,
   );
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [checkResultRadio, setCheckResultRadio] = React.useState<string | null>(
+    null,
+  );
   const {
     isOpen: isOpenErrorDialog,
     onOpen: onOpenErrorDialog,
     onOpenChange: onOpenChangeErrorDialog,
   } = useDisclosure();
+  const {
+    isOpen: isOpenResultInput,
+    onOpen: onOpenResultInput,
+    onOpenChange: onOpenChangeResultInput,
+  } = useDisclosure();
+  const [changeResultState, changeResultFormAction] = useFormState(
+    updateCheckResults,
+    checkResultInitialState,
+  );
 
   React.useEffect(() => {
     getCheckReservation(props.reservationId, props.collectionId).then(
@@ -91,6 +118,10 @@ export default function CheckReservationCard(props: CheckReservationCardProps) {
     }
   }
 
+  async function handleResultUpdate() {
+    setIsSubmitting(true);
+  }
+
   let updateTime = "";
   let card = null;
 
@@ -118,7 +149,89 @@ export default function CheckReservationCard(props: CheckReservationCardProps) {
     } else if (reservation.status === "順番待ち") {
       updateTime = "呼出予想: 未定";
     }
-
+    const checkResultInput = (
+      <>
+        <Button onPress={onOpenResultInput}>計量計測1結果入力</Button>
+        <Modal
+          isOpen={isOpenResultInput}
+          onOpenChange={onOpenChangeResultInput}
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  計量計測1結果入力
+                </ModalHeader>
+                <ModalBody>
+                  <form
+                    action={changeResultFormAction}
+                    className="flex-col items-stretch justify-start gap-4"
+                  >
+                    <Checkbox className="flex" name="startSize">
+                      スタート寸法
+                    </Checkbox>
+                    <Checkbox className="flex" name="r1ExpandSize">
+                      R1展開寸法
+                    </Checkbox>
+                    <Checkbox className="flex" name="totalWeight">
+                      総重量
+                    </Checkbox>
+                    <Checkbox className="flex" name="powerVoltage">
+                      電源電圧
+                    </Checkbox>
+                    <Checkbox className="flex" name="emergencyStop">
+                      緊急停止
+                    </Checkbox>
+                    <Textarea
+                      className="mt-4 flex"
+                      label="メモ"
+                      labelPlacement="outside"
+                      name="memo"
+                    />
+                    <Textarea
+                      className="mt-4 flex"
+                      label="再検査項目"
+                      labelPlacement="outside"
+                      name="recheckItems"
+                    />
+                    <RadioGroup
+                      className="mt-4 flex"
+                      label="判定"
+                      name="status"
+                      value={checkResultRadio}
+                      onValueChange={(value) => setCheckResultRadio(value)}
+                    >
+                      <Radio value="合格">合格</Radio>
+                      <Radio value="再検査">再検査</Radio>
+                    </RadioGroup>
+                    <Button
+                      className="mt-4 flex"
+                      color="primary"
+                      isDisabled={!checkResultRadio}
+                      isLoading={isSubmitting}
+                      type="submit"
+                    >
+                      送信
+                    </Button>
+                    <input name="id" type="hidden" value={reservation.id} />
+                    <input
+                      name="collectionId"
+                      type="hidden"
+                      value={props.collectionId}
+                    />
+                  </form>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                    閉じる
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+      </>
+    );
     let changeStatusButton = null;
 
     if (isAdmin()) {
@@ -163,10 +276,49 @@ export default function CheckReservationCard(props: CheckReservationCardProps) {
           );
           break;
         case "実施中":
-          changeStatusButton = <Button>計量計測結果を入力</Button>;
+          changeStatusButton = <>{checkResultInput}</>;
           break;
       }
     }
+
+    const results = (
+      <Table className="w-full" aria-label="計量計測の結果">
+        <TableHeader>
+          <TableColumn>項目</TableColumn>
+          <TableColumn>結果</TableColumn>
+        </TableHeader>
+        <TableBody>
+          <TableRow key="スタート寸法">
+            <TableCell>スタート寸法</TableCell>
+            <TableCell>{reservation.startSize ? "OK" : "NG"}</TableCell>
+          </TableRow>
+          <TableRow key="R1展開寸法">
+            <TableCell>R1展開寸法</TableCell>
+            <TableCell>{reservation.r1ExpandSize ? "OK" : "NG"}</TableCell>
+          </TableRow>
+          <TableRow key="総重量">
+            <TableCell>総重量</TableCell>
+            <TableCell>{reservation.totalWeight ? "OK" : "NG"}</TableCell>
+          </TableRow>
+          <TableRow key="電源電圧">
+            <TableCell>電源電圧</TableCell>
+            <TableCell>{reservation.powerVoltage ? "OK" : "NG"}</TableCell>
+          </TableRow>
+          <TableRow key="緊急停止">
+            <TableCell>緊急停止</TableCell>
+            <TableCell>{reservation.emergencyStop ? "OK" : "NG"}</TableCell>
+          </TableRow>
+          <TableRow key="メモ">
+            <TableCell>メモ</TableCell>
+            <TableCell>{reservation.memo}</TableCell>
+          </TableRow>
+          <TableRow key="再検査項目">
+            <TableCell>再検査項目</TableCell>
+            <TableCell>{reservation.recheckItems}</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    );
 
     card = (
       <Card className={cn("w-full flex-col items-stretch p-2", props.bgColor)}>
@@ -262,12 +414,13 @@ export default function CheckReservationCard(props: CheckReservationCardProps) {
             ) : null}
           </div>
         </CardHeader>
-        {isAdmin() && changeStatusButton ? (
+        {isAdmin() ? (
           <>
             <Spacer y={2} />
             <Divider />
             <CardBody className="flex-row items-stretch justify-center gap-2">
               {changeStatusButton}
+              {["合格", "再検査"].includes(reservation.status) ? results : null}
             </CardBody>
           </>
         ) : null}

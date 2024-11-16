@@ -202,7 +202,11 @@ export async function updateTestrunStatus(
 }
 
 function testrunDataConverter(): FirestoreDataConverter<TestrunReservation> {
-  return reservationDataConverter<TestrunStatus, TestrunSide>();
+  return reservationDataConverter<
+    TestrunStatus,
+    TestrunSide,
+    TestrunReservation
+  >();
 }
 
 // 「順番待ち」の先頭からat番目のテストランに呼び出し予告を送信する
