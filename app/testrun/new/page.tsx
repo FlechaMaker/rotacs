@@ -96,7 +96,7 @@ export default function NewTestrun() {
           onSubmit={handleSubmit}
         >
           <p className="text-sm font-bold">
-            予約開始の11時以前の予約は全て削除します．11時以降に予約してください．
+            計量計測に合格してから予約してください．合格前に送信された予約は管理者がキャンセルします．
           </p>
           <RadioGroup
             label="フィールドの色を選択してください"
