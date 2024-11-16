@@ -151,7 +151,7 @@ export default function CheckReservationCard(props: CheckReservationCardProps) {
     }
     const checkResultInput = (
       <>
-        <Button onPress={onOpenResultInput}>計量計測1結果入力</Button>
+        <Button onPress={onOpenResultInput}>計量計測結果入力</Button>
         <Modal
           isOpen={isOpenResultInput}
           onOpenChange={onOpenChangeResultInput}
@@ -160,7 +160,7 @@ export default function CheckReservationCard(props: CheckReservationCardProps) {
             {(onClose) => (
               <>
                 <ModalHeader className="flex flex-col gap-1">
-                  計量計測1結果入力
+                  計量計測結果入力
                 </ModalHeader>
                 <ModalBody>
                   <form

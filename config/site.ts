@@ -62,7 +62,13 @@ export const routes: Route = {
 export const siteConfig = {
   name: "RoTACS",
   description: "Robocon Testrun And Check Scheduler",
-  tabItems: [routes.home, routes.testrun, routes.check1, routes.settings],
+  tabItems: [
+    routes.home,
+    routes.testrun,
+    routes.check1,
+    routes.check2,
+    routes.settings,
+  ],
   navMenuItemsSignedOut: [routes.home, routes.login],
   navMenuItemsSignedIn: [
     routes.home,
