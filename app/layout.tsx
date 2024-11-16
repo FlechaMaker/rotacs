@@ -9,6 +9,7 @@ import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { validateRequest } from "@/lib/server/auth";
 import { Navbar } from "@/components/navbar";
+import { Icon } from "@iconify/react";
 
 export const metadata: Metadata = {
   title: {
@@ -56,11 +57,11 @@ export default async function RootLayout({
               <Link
                 isExternal
                 className="flex items-center gap-1 text-current"
-                href="https://nextui-docs-v2.vercel.app?utm_source=next-app-template"
-                title="nextui.org homepage"
+                href="https://github.com/harurobocon/rotacs"
+                title="RoTACS GitHub Repository"
               >
-                <span className="text-default-600">Powered by</span>
-                <p className="text-primary">NextUI</p>
+                <Icon icon="mdi:github" />
+                <p className="text-primary">Repository</p>
               </Link>
             </footer>
           </div>
