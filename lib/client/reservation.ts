@@ -10,21 +10,20 @@ import { Reservation } from "@/types/reservation";
 export function reservationDataConverter<
   StatusType extends string,
   SideType extends string,
->(): FirestoreDataConverter<Reservation<StatusType, SideType>> {
+  ReservationType extends Reservation<StatusType, SideType>,
+>(): FirestoreDataConverter<ReservationType> {
   return {
-    toFirestore: (data: WithFieldValue<Reservation<StatusType, SideType>>) => {
-      return objectifyReservation(data as Reservation<StatusType, SideType>);
+    toFirestore: (data: WithFieldValue<ReservationType>) => {
+      return objectifyReservation(data as ReservationType);
     },
-    fromFirestore: (
-      snapshot: QueryDocumentSnapshot<Reservation<StatusType, SideType>>,
-    ) => {
+    fromFirestore: (snapshot: QueryDocumentSnapshot<ReservationType>) => {
       const data = snapshot.data() as any;
 
       data.reserved_at = data.reserved_at.toDate();
       data.fixed_at = data.fixed_at ? data.fixed_at.toDate() : null;
       data.finished_at = data.finished_at ? data.finished_at.toDate() : null;
 
-      return data as Reservation<StatusType, SideType>;
+      return data as ReservationType;
     },
   };
 }

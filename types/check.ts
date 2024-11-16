@@ -37,21 +37,15 @@ export class CheckReservation extends Reservation<CheckStatus, CheckSide> {
       reservation_count: number;
       status: CheckStatus;
       side: CheckSide;
-      startSize: boolean;
-      r1ExpandSize: boolean;
-      totalWeight: boolean;
-      powerVoltage: boolean;
-      emergencyStop: boolean;
-      memo: string;
     },
   ) {
     super(options);
-    this.startSize = options.startSize;
-    this.r1ExpandSize = options.r1ExpandSize;
-    this.totalWeight = options.totalWeight;
-    this.powerVoltage = options.powerVoltage;
-    this.emergencyStop = options.emergencyStop;
-    this.memo = options.memo;
+    this.startSize = options.startSize || false;
+    this.r1ExpandSize = options.r1ExpandSize || false;
+    this.totalWeight = options.totalWeight || false;
+    this.powerVoltage = options.powerVoltage || false;
+    this.emergencyStop = options.emergencyStop || false;
+    this.memo = options.memo || "";
     this.recheckItems = options.recheckItems || "";
   }
 }

@@ -84,5 +84,5 @@ export function onCheckCollectionChange(
 }
 
 function checkDataConverter(): FirestoreDataConverter<CheckReservation> {
-  return reservationDataConverter<CheckStatus, CheckSide>();
+  return reservationDataConverter<CheckStatus, CheckSide, CheckReservation>();
 }

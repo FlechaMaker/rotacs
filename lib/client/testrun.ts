@@ -82,5 +82,9 @@ export function onTestrunCollectionChange(
 }
 
 function testrunDataConverter(): FirestoreDataConverter<TestrunReservation> {
-  return reservationDataConverter<TestrunStatus, TestrunSide>();
+  return reservationDataConverter<
+    TestrunStatus,
+    TestrunSide,
+    TestrunReservation
+  >();
 }
