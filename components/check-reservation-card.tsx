@@ -147,7 +147,7 @@ export default function CheckReservationCard(props: CheckReservationCardProps) {
           minute: "2-digit",
         });
     } else if (reservation.status === "順番待ち") {
-      updateTime = "呼出予想: 未定";
+      updateTime = "";
     }
     const checkResultInput = (
       <>

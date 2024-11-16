@@ -107,7 +107,7 @@ export default function TestrunReservationCard(
           minute: "2-digit",
         });
     } else if (reservation.status === "順番待ち") {
-      updateTime = "呼出予想: 未定";
+      updateTime = "";
     }
 
     let changeStatusButton = null;
