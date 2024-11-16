@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
-import { Link } from "@nextui-org/link";
+import { Link, button as buttonStyles } from "@nextui-org/react";
 import clsx from "clsx";
 
 import { Providers } from "./providers";
@@ -10,6 +10,8 @@ import { fontSans } from "@/config/fonts";
 import { validateRequest } from "@/lib/server/auth";
 import { Navbar } from "@/components/navbar";
 import { Icon } from "@iconify/react";
+import { Tooltip } from "@nextui-org/react";
+import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
   title: {
@@ -53,6 +55,23 @@ export default async function RootLayout({
             <main className="container mx-auto h-full max-w-7xl flex-grow flex-col px-2 pt-6 md:px-8">
               {children}
             </main>
+            <Tooltip content="アンケートにご協力ください🙇" placement="left">
+              <Link
+                isExternal
+                className={cn([
+                  buttonStyles({
+                    isIconOnly: true,
+                    radius: "full",
+                    size: "md",
+                    variant: "faded",
+                  }),
+                  "fixed bottom-4 right-4 z-10 overflow-visible shadow-md md:bottom-8 md:right-8",
+                ])}
+                href="https://forms.gle/x5fWZB3QBcDbRHyv5"
+              >
+                <Icon icon="fluent:person-feedback-24-regular" width={28} />
+              </Link>
+            </Tooltip>
             <footer className="flex w-full items-center justify-center py-3">
               <Link
                 isExternal
