@@ -5,13 +5,7 @@ import "client-only";
 import React from "react";
 import { useFormState } from "react-dom";
 import { useRouter } from "next/navigation";
-import {
-  Autocomplete,
-  AutocompleteItem,
-  Button,
-  Radio,
-  RadioGroup,
-} from "@nextui-org/react";
+import { Autocomplete, AutocompleteItem, Button } from "@nextui-org/react";
 import { User } from "lucia";
 
 import { ActionResult } from "@/types/actions";
@@ -114,7 +108,12 @@ export default function NewCheck() {
             name="collectionId"
             type="hidden"
           />
-          <Button color="primary" isLoading={isSubmitting} type="submit">
+          <Button
+            isDisabled
+            color="primary"
+            isLoading={isSubmitting}
+            type="submit"
+          >
             予約する
           </Button>
         </form>
