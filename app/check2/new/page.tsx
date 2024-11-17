@@ -108,12 +108,7 @@ export default function NewCheck() {
             name="collectionId"
             type="hidden"
           />
-          <Button
-            isDisabled
-            color="primary"
-            isLoading={isSubmitting}
-            type="submit"
-          >
+          <Button color="primary" isLoading={isSubmitting} type="submit">
             予約する
           </Button>
         </form>

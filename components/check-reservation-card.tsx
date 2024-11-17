@@ -35,7 +35,12 @@ import { Icon } from "@iconify/react";
 import { useFormState } from "react-dom";
 
 import { cn } from "@/lib/cn";
-import { CheckReservation, CheckStatus, CheckStatuses } from "@/types/check";
+import {
+  CHECK1_COLLECTION,
+  CheckReservation,
+  CheckStatus,
+  CheckStatuses,
+} from "@/types/check";
 import {
   getCheckReservation,
   onCheckReservationChange,
@@ -167,21 +172,29 @@ export default function CheckReservationCard(props: CheckReservationCardProps) {
                     action={changeResultFormAction}
                     className="flex-col items-stretch justify-start gap-4"
                   >
-                    <Checkbox className="flex" name="startSize">
-                      スタート寸法
-                    </Checkbox>
-                    <Checkbox className="flex" name="r1ExpandSize">
-                      R1展開寸法
-                    </Checkbox>
+                    {props.collectionId === CHECK1_COLLECTION ? (
+                      <>
+                        <Checkbox className="flex" name="startSize">
+                          スタート寸法
+                        </Checkbox>
+                        <Checkbox className="flex" name="r1ExpandSize">
+                          R1展開寸法
+                        </Checkbox>
+                      </>
+                    ) : null}
                     <Checkbox className="flex" name="totalWeight">
                       総重量
                     </Checkbox>
-                    <Checkbox className="flex" name="powerVoltage">
-                      電源電圧
-                    </Checkbox>
-                    <Checkbox className="flex" name="emergencyStop">
-                      緊急停止
-                    </Checkbox>
+                    {props.collectionId === CHECK1_COLLECTION ? (
+                      <>
+                        <Checkbox className="flex" name="powerVoltage">
+                          電源電圧
+                        </Checkbox>
+                        <Checkbox className="flex" name="emergencyStop">
+                          緊急停止
+                        </Checkbox>
+                      </>
+                    ) : null}
                     <Textarea
                       className="mt-4 flex"
                       label="メモ"
@@ -288,26 +301,38 @@ export default function CheckReservationCard(props: CheckReservationCardProps) {
           <TableColumn>結果</TableColumn>
         </TableHeader>
         <TableBody>
-          <TableRow key="スタート寸法">
-            <TableCell>スタート寸法</TableCell>
-            <TableCell>{reservation.startSize ? "OK" : "NG"}</TableCell>
-          </TableRow>
-          <TableRow key="R1展開寸法">
-            <TableCell>R1展開寸法</TableCell>
-            <TableCell>{reservation.r1ExpandSize ? "OK" : "NG"}</TableCell>
-          </TableRow>
+          {props.collectionId === CHECK1_COLLECTION ? (
+            <>
+              <TableRow key="スタート寸法">
+                <TableCell>スタート寸法</TableCell>
+                <TableCell>{reservation.startSize ? "OK" : "NG"}</TableCell>
+              </TableRow>
+              <TableRow key="R1展開寸法">
+                <TableCell>R1展開寸法</TableCell>
+                <TableCell>{reservation.r1ExpandSize ? "OK" : "NG"}</TableCell>
+              </TableRow>
+            </>
+          ) : (
+            <></>
+          )}
           <TableRow key="総重量">
             <TableCell>総重量</TableCell>
             <TableCell>{reservation.totalWeight ? "OK" : "NG"}</TableCell>
           </TableRow>
-          <TableRow key="電源電圧">
-            <TableCell>電源電圧</TableCell>
-            <TableCell>{reservation.powerVoltage ? "OK" : "NG"}</TableCell>
-          </TableRow>
-          <TableRow key="緊急停止">
-            <TableCell>緊急停止</TableCell>
-            <TableCell>{reservation.emergencyStop ? "OK" : "NG"}</TableCell>
-          </TableRow>
+          {props.collectionId === CHECK1_COLLECTION ? (
+            <>
+              <TableRow key="電源電圧">
+                <TableCell>電源電圧</TableCell>
+                <TableCell>{reservation.powerVoltage ? "OK" : "NG"}</TableCell>
+              </TableRow>
+              <TableRow key="緊急停止">
+                <TableCell>緊急停止</TableCell>
+                <TableCell>{reservation.emergencyStop ? "OK" : "NG"}</TableCell>
+              </TableRow>
+            </>
+          ) : (
+            <></>
+          )}
           <TableRow key="メモ">
             <TableCell>メモ</TableCell>
             <TableCell>{reservation.memo}</TableCell>
